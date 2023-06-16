@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "924184984282",
+    "project_id": "animalloversapp-421f0",
+    "storage_bucket": "animalloversapp-421f0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:924184984282:android:056b38102cc563dcc043e3",
+        "android_client_info": {
+          "package_name": "com.example.animal_lovers_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "924184984282-vqt3ei26jqlfpvgd2ntmub7228beelmr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkceF6a4eTIetZNmpkyLOP89TihYwNy-8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "924184984282-vqt3ei26jqlfpvgd2ntmub7228beelmr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

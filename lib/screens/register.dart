@@ -1,0 +1,198 @@
+import 'package:animal_lovers_app/components/textfield.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:animal_lovers_app/components/longButton.dart';
+
+class RegisterPage extends StatefulWidget {
+  final Function()? onTap;
+  const RegisterPage({Key? key, required this.onTap}) : super(key: key);
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  //text editing controllers
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _usernameController = TextEditingController();
+
+  //register user method
+  Future registerUser() async {
+    //loading circle
+    showDialog(
+        context: context,
+        builder: (context) {
+          return const Center(child: CircularProgressIndicator());
+        });
+
+    try {
+      if (_emailController.text.trim().length == 0 ||
+          _passwordController.text.trim().length == 0 ||
+          _confirmPasswordController.text.trim().length == 0 ||
+          _usernameController.text.trim().length == 0) {
+        Navigator.pop(context);
+        showErrorMessage("Please fill all the details.");
+      }
+      //check if the password same with confirm password
+      else if (_passwordController.text.trim() ==
+          _confirmPasswordController.text.trim()) {
+        //create user
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim());
+        //pop the loading circle
+        Navigator.pop(context);
+        //add username
+        addUsername(
+            _usernameController.text.trim(), _emailController.text.trim());
+      } else {
+        Navigator.pop(context);
+        //show error message
+        showErrorMessage("Passwords don't match");
+      }
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+      if (e.code == 'weak-password') {
+        //show weak password error
+        showErrorMessage("The password provided is too weak.");
+      } else if (e.code == 'email-already-in-use') {
+        //show account exist error
+        showErrorMessage("The account already exists for that email.");
+      } else {
+        //show other error
+        showErrorMessage(e.message.toString());
+      }
+    }
+  }
+
+  Future addUsername(String username, String email) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .add({'username': username, 'email': email});
+  }
+
+  //error message popup
+  void showErrorMessage(String message) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(message),
+          );
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.3646, 0.9062, 1.0],
+            colors: [
+              Colors.white,
+              Colors.white,
+              Color.fromRGBO(182, 255, 182, 0.5),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Gap(10),
+                  //logo
+                  Image.asset(
+                    'images/anp.png',
+                  ),
+                  Gap(20),
+                  Text(
+                    "Register",
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  ),
+                  Gap(10),
+                  Text(
+                    "Create your new account",
+                    style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                  ),
+                  Gap(30),
+                  //username
+                  CustomizedTextField(
+                    icon: Icon(Icons.person),
+                    controller: _usernameController,
+                    hintText: 'Username',
+                    obsureText: false,
+                  ),
+                  //email
+                  CustomizedTextField(
+                    icon: Icon(Icons.email),
+                    controller: _emailController,
+                    hintText: 'Email',
+                    obsureText: false,
+                  ),
+                  //password
+                  CustomizedTextField(
+                    icon: Icon(Icons.lock_sharp),
+                    controller: _passwordController,
+                    hintText: 'Password',
+                    obsureText: true,
+                  ),
+                  CustomizedTextField(
+                    icon: Icon(Icons.lock_sharp),
+                    controller: _confirmPasswordController,
+                    hintText: 'Confirm Password',
+                    obsureText: true,
+                  ),
+                  Gap(5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "By signing up, you’ve agreed to our terms of use and privacy notice.",
+                        style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                      ),
+                    ],
+                  ),
+                  Gap(20),
+                  LongButton(
+                    buttonText: "Register",
+                    onTap: registerUser,
+                  ),
+                  Gap(30),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Already have an account?",
+                        style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                      ),
+                      Gap(5),
+                      GestureDetector(
+                        onTap: widget.onTap,
+                        child: Text(
+                          "Login",
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1B4332)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
