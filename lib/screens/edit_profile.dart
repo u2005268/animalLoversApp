@@ -41,6 +41,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
       ),
       body: Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -53,77 +55,79 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ],
             ),
           ),
-          child: SingleChildScrollView(
+          child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(top: 20.0),
-              child: Column(
-                children: [
-                  Stack(children: [
-                    SizedBox(
-                      width: 90,
-                      height: 90,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child: Image.asset(
-                          'images/user.png',
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          width: 25,
-                          height: 25,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            color: Color(0xFFD7FFD7),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                spreadRadius: 2,
-                                blurRadius: 2,
-                                offset: Offset(0, 1),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.camera_alt_rounded,
-                            size: 20,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Stack(children: [
+                      SizedBox(
+                        width: 90,
+                        height: 90,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: Image.asset(
+                            'images/user.png',
                           ),
                         ),
                       ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            width: 25,
+                            height: 25,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              color: Color(0xFFD7FFD7),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  spreadRadius: 2,
+                                  blurRadius: 2,
+                                  offset: Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.camera_alt_rounded,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]),
+                    Gap(20),
+                    UnderlineTextField(
+                      controller: _usernameController,
+                      hintText: "Username",
+                      obsureText: false,
                     ),
-                  ]),
-                  Gap(20),
-                  UnderlineTextField(
-                    controller: _usernameController,
-                    hintText: "Username",
-                    obsureText: false,
-                  ),
-                  UnderlineTextField(
-                    controller: _emailController,
-                    hintText: "Email",
-                    obsureText: false,
-                  ),
-                  UnderlineTextField(
-                    controller: _bioController,
-                    hintText: "Bio",
-                    obsureText: false,
-                  ),
-                  UnderlineTextField(
-                    controller: _changePasswordController,
-                    hintText: "Change Password",
-                    obsureText: true,
-                  ),
-                  Gap(20),
-                  LongButton(
-                    buttonText: "update",
-                    onTap: () {},
-                  ),
-                ],
+                    UnderlineTextField(
+                      controller: _emailController,
+                      hintText: "Email",
+                      obsureText: false,
+                    ),
+                    UnderlineTextField(
+                      controller: _bioController,
+                      hintText: "Bio",
+                      obsureText: false,
+                    ),
+                    UnderlineTextField(
+                      controller: _changePasswordController,
+                      hintText: "Change Password",
+                      obsureText: true,
+                    ),
+                    Gap(20),
+                    LongButton(
+                      buttonText: "update",
+                      onTap: () {},
+                    ),
+                  ],
+                ),
               ),
             ),
           )),

@@ -1,4 +1,4 @@
-import 'package:animal_lovers_app/screens/bottom_bar.dart';
+import 'package:animal_lovers_app/components/bottom_bar.dart';
 import 'package:animal_lovers_app/screens/donate.dart';
 import 'package:animal_lovers_app/screens/info.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
@@ -47,6 +47,7 @@ class _AnimalTrackerState extends State<AnimalTracker> {
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
+          titleSpacing: 0,
           iconTheme: IconThemeData(color: Colors.black), // Remove the shadow
           title: Text(
             "Animal Tracker",
@@ -68,21 +69,25 @@ class _AnimalTrackerState extends State<AnimalTracker> {
             onDonateTap: navigateDonate,
             onInfoTap: navigateInfo,
             onProfileTap: navigateProfile),
-        backgroundColor: Colors.transparent,
+        bottomNavigationBar: BottomBar(),
+        backgroundColor: Colors.white,
         body: SafeArea(
-          child: Container(
+          child: Center(
+            child: Container(
               decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [0.3646, 0.9062, 1.0],
-              colors: [
-                Colors.white,
-                Colors.white,
-                Color.fromRGBO(182, 255, 182, 0.5),
-              ],
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.3646, 0.9062, 1.0],
+                  colors: [
+                    Colors.white,
+                    Colors.white,
+                    Color.fromRGBO(182, 255, 182, 0.5),
+                  ],
+                ),
+              ),
             ),
-          )),
+          ),
         ));
   }
 }

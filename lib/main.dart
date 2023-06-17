@@ -1,6 +1,5 @@
 import 'package:animal_lovers_app/screens/animal_tracker.dart';
 import 'package:animal_lovers_app/screens/auth_page.dart';
-import 'package:animal_lovers_app/screens/bottom_bar.dart';
 import 'package:animal_lovers_app/screens/login.dart';
 import 'package:animal_lovers_app/screens/register.dart';
 import 'package:flutter/material.dart';

@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/components/bottom_bar.dart';
 import 'package:animal_lovers_app/components/longCard.dart';
 import 'package:animal_lovers_app/components/shortButton.dart';
 import 'package:animal_lovers_app/screens/donate.dart';
@@ -78,7 +79,8 @@ class _InfoPageState extends State<InfoPage> {
           onDonateTap: navigateDonate,
           onInfoTap: navigateInfo,
           onProfileTap: navigateProfile),
-      backgroundColor: Colors.transparent,
+      bottomNavigationBar: BottomBar(),
+      backgroundColor: Colors.white,
       body: Container(
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(

@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/components/bottom_bar.dart';
 import 'package:animal_lovers_app/components/donationCard.dart';
 import 'package:animal_lovers_app/screens/info.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
@@ -76,7 +77,8 @@ class _DonatePageState extends State<DonatePage> {
         onInfoTap: navigateInfo,
         onProfileTap: navigateProfile,
       ),
-      backgroundColor: Colors.transparent,
+      bottomNavigationBar: BottomBar(),
+      backgroundColor: Colors.white,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

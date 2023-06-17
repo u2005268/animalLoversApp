@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/components/bottom_bar.dart';
 import 'package:animal_lovers_app/components/shortButton.dart';
 import 'package:animal_lovers_app/screens/donate.dart';
 import 'package:animal_lovers_app/screens/edit_profile.dart';
@@ -64,95 +65,101 @@ class _ProfilePageState extends State<ProfilePage> {
           onDonateTap: navigateDonate,
           onInfoTap: navigateInfo,
           onProfileTap: navigateProfile),
-      backgroundColor: Colors.transparent,
-      body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [0.3646, 0.9062, 1.0],
-              colors: [
-                Colors.white,
-                Colors.white,
-                Color.fromRGBO(182, 255, 182, 0.5),
-              ],
-            ),
-          ),
-          child: Center(
-            child: Column(
-              children: [
-                SizedBox(
-                  width: 90,
-                  height: 90,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(100),
-                    child: Image.asset(
-                      'images/user.png',
+      bottomNavigationBar: BottomBar(),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.3646, 0.9062, 1.0],
+                  colors: [
+                    Colors.white,
+                    Colors.white,
+                    Color.fromRGBO(182, 255, 182, 0.5),
+                  ],
+                ),
+              ),
+              child: Center(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: 90,
+                      height: 90,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: Image.asset(
+                          'images/user.png',
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Text(
-                  "Peimun01",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                ),
-                Gap(5),
-                Text(
-                  "peimun030601@gmail.com",
-                  style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-                ),
-                Gap(10),
-                Container(
-                  padding: EdgeInsets.all(20),
-                  margin: EdgeInsets.symmetric(horizontal: 25),
-                  decoration: BoxDecoration(
-                    color: Color(0xFF213221),
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Text(
-                    "Embracing the beauty of all creatures, I find solace and inspiration in the unconditional love of animals.",
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
-                Gap(40),
-                Text(
-                  "My Favourites",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                ),
-                Gap(10),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 35.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: ShortButton(
-                          buttonText: "Species",
-                          isTapped: false,
-                          onTap: () {},
-                        ),
+                    Text(
+                      "Peimun01",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    ),
+                    Gap(5),
+                    Text(
+                      "peimun030601@gmail.com",
+                      style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                    ),
+                    Gap(10),
+                    Container(
+                      padding: EdgeInsets.all(20),
+                      margin: EdgeInsets.symmetric(horizontal: 25),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF213221),
+                        borderRadius: BorderRadius.circular(22),
                       ),
-                      Gap(20),
-                      Flexible(
-                        child: ShortButton(
-                          buttonText: "Observation",
-                          isTapped: false,
-                          onTap: () {},
-                        ),
+                      child: Text(
+                        "Embracing the beauty of all creatures, I find solace and inspiration in the unconditional love of animals.",
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 14),
                       ),
-                      Gap(20),
-                      Flexible(
-                        child: ShortButton(
-                          buttonText: "News",
-                          isTapped: true,
-                          onTap: () {},
-                        ),
+                    ),
+                    Gap(40),
+                    Text(
+                      "My Favourites",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    ),
+                    Gap(10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 35.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: ShortButton(
+                              buttonText: "Species",
+                              isTapped: false,
+                              onTap: () {},
+                            ),
+                          ),
+                          Gap(20),
+                          Flexible(
+                            child: ShortButton(
+                              buttonText: "Observation",
+                              isTapped: false,
+                              onTap: () {},
+                            ),
+                          ),
+                          Gap(20),
+                          ShortButton(
+                            buttonText: "News",
+                            isTapped: true,
+                            onTap: () {},
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          )),
+              )),
+        ),
+      ),
     );
   }
 }
