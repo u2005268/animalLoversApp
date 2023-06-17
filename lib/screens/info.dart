@@ -4,18 +4,29 @@ import 'package:animal_lovers_app/screens/donate.dart';
 import 'package:animal_lovers_app/screens/edit_profile.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
 import 'package:animal_lovers_app/screens/side_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 class InfoPage extends StatefulWidget {
-  const InfoPage({Key? key}) : super(key: key);
+  InfoPage({Key? key}) : super(key: key);
 
   @override
   State<InfoPage> createState() => _InfoPageState();
 }
 
 class _InfoPageState extends State<InfoPage> {
+  CollectionReference _referenceInfoList =
+      FirebaseFirestore.instance.collection('info');
+  late Stream<QuerySnapshot> _streamInfoItems;
+
+  @override
+  initState() {
+    super.initState();
+    _streamInfoItems = _referenceInfoList.snapshots();
+  }
+
   void navigateDonate() {
     //navigate to donate page
     Navigator.push(
@@ -69,6 +80,7 @@ class _InfoPageState extends State<InfoPage> {
           onProfileTap: navigateProfile),
       backgroundColor: Colors.transparent,
       body: Container(
+          height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -82,23 +94,59 @@ class _InfoPageState extends State<InfoPage> {
             ),
           ),
           child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
+            child: SingleChildScrollView(
               child: Column(
                 children: [
                   Gap(20),
-                  LongCard(
-                      url: 'https://www.dvs.gov.my/index.php/pages/view/797',
-                      buttonText: "DVS (Department of Veterinary Services)"),
-                  Gap(20),
-                  LongCard(
-                      url: 'https://awa.dvs.gov.my/support',
-                      buttonText:
-                          "Complaint Form Regarding Animal Welfare & Abuse"),
-                  Gap(20),
-                  LongCard(
-                      url: 'https://animalneighboursproject.org/',
-                      buttonText: "Animal Neigbours Project"),
+                  StreamBuilder<QuerySnapshot>(
+                    stream: _streamInfoItems,
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      // Add your StreamBuilder UI code here
+                      if (snapshot.hasError) {
+                        // Handle any errors
+                        return AlertDialog(
+                          title: Text('Error: ${snapshot.error}'),
+                        );
+                      } else if (snapshot.hasData) {
+                        // Handle the snapshot data
+                        QuerySnapshot querySnapshot = snapshot.data;
+                        List<QueryDocumentSnapshot> documents =
+                            querySnapshot.docs;
+
+                        List<Map> items = documents
+                            .map((e) => {
+                                  'id': e.id,
+                                  'title': e["title"],
+                                  'url': e['url']
+                                })
+                            .toList();
+                        return Container(
+                          height: MediaQuery.of(context)
+                              .size
+                              .height, // Provide a fixed height
+                          child: ListView.builder(
+                            itemCount: items.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              Map thisItem = items[index];
+                              String url = thisItem['url'];
+                              String title = thisItem['title'];
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: LongCard(
+                                  url: url,
+                                  text: title,
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      } else {
+                        // Show a loading indicator while waiting for data
+                        return CircularProgressIndicator();
+                      }
+                    },
+                  ),
                 ],
               ),
             ),

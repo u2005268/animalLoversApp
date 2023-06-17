@@ -1,10 +1,11 @@
+import 'package:animal_lovers_app/components/donationCard.dart';
 import 'package:animal_lovers_app/components/shortButton.dart';
 import 'package:animal_lovers_app/screens/info.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
 import 'package:animal_lovers_app/screens/side_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 
 class DonatePage extends StatefulWidget {
   const DonatePage({Key? key}) : super(key: key);
@@ -14,26 +15,36 @@ class DonatePage extends StatefulWidget {
 }
 
 class _DonatePageState extends State<DonatePage> {
+  CollectionReference _referenceDonationList =
+      FirebaseFirestore.instance.collection('donation');
+  late Stream<QuerySnapshot> _streamDonationItems;
+
+  @override
+  initState() {
+    super.initState();
+    _streamDonationItems = _referenceDonationList.snapshots();
+  }
+
   void navigateDonate() {
-    //navigate to donate page
+    // navigate to donate page
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => const DonatePage()));
   }
 
   void navigateInfo() {
-    //pop drawer
+    // pop drawer
     Navigator.pop(context);
 
-    //navigate to info page
+    // navigate to info page
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => InfoPage()));
   }
 
   void navigateProfile() {
-    //pop drawer
+    // pop drawer
     Navigator.pop(context);
 
-    //navigate to profile page
+    // navigate to profile page
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => ProfilePage()));
   }
@@ -46,7 +57,7 @@ class _DonatePageState extends State<DonatePage> {
         elevation: 0,
         titleSpacing: 0,
         title: Text(
-          "Info",
+          "Donate",
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -62,9 +73,10 @@ class _DonatePageState extends State<DonatePage> {
         // Set the icon color to black,
       ),
       drawer: SideBar(
-          onDonateTap: navigateDonate,
-          onInfoTap: navigateInfo,
-          onProfileTap: navigateProfile),
+        onDonateTap: navigateDonate,
+        onInfoTap: navigateInfo,
+        onProfileTap: navigateProfile,
+      ),
       backgroundColor: Colors.transparent,
       body: Container(
         decoration: BoxDecoration(
@@ -79,58 +91,68 @@ class _DonatePageState extends State<DonatePage> {
             ],
           ),
         ),
-        child: Column(
-          children: [
-            Card(
-              clipBehavior: Clip.antiAlias,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Container(
+        child: StreamBuilder<QuerySnapshot>(
+          stream: _streamDonationItems,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasError) {
+              // Handle any errors
+              return AlertDialog(
+                title: Text('Error: ${snapshot.error}'),
+              );
+            } else if (snapshot.hasData) {
+              // Handle the snapshot data
+              QuerySnapshot querySnapshot = snapshot.data;
+              List<QueryDocumentSnapshot> documents = querySnapshot.docs;
+
+              List<Map> items = documents
+                  .map((e) => {
+                        'id': e.id,
+                        'image': e["image"],
+                        'title': e['title'],
+                        'logoImage': e['logoImage'],
+                        'name': e['name'],
+                        'url': e['url']
+                      })
+                  .toList();
+
+              return SingleChildScrollView(
                 child: Column(
                   children: [
-                    Image.asset(
-                      'images/user.png',
-                      height: 240,
-                      fit: BoxFit.cover,
-                    ),
-                    Text(
-                      "Donate to make an impact on wildlife",
-                      style:
-                          TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 90,
-                              height: 90,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: Image.asset(
-                                  'images/user.png',
-                                ),
-                              ),
-                            ),
-                            Gap(2),
-                            Text(
-                              "Langur Project Penang",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                        ShortButton(
-                            onTap: () {}, buttonText: "Donate", isTapped: false)
-                      ],
+                    Container(
+                      height: MediaQuery.of(context)
+                          .size
+                          .height, // Provide a fixed height
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: items.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          Map thisItem = items[index];
+                          String image = thisItem['image'];
+                          String title = thisItem['title'];
+                          String logoImage = thisItem['logoImage'];
+                          String name = thisItem['name'];
+                          String url = thisItem['url'];
+                          return DonationCard(
+                            image: image,
+                            title: title,
+                            logoImage: logoImage,
+                            name: name,
+                            url: url,
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ),
-          ],
+              );
+            } else {
+              // Show a loading indicator while waiting for data
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          },
         ),
       ),
     );

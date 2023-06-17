@@ -4,9 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class LongCard extends StatelessWidget {
   final String url;
-  final String buttonText;
+  final String text;
 
-  const LongCard({Key? key, required this.url, required this.buttonText})
+  const LongCard({Key? key, required this.url, required this.text})
       : super(key: key);
 
   @override
@@ -36,7 +36,7 @@ class LongCard extends StatelessWidget {
               ],
             ),
             child: Text(
-              buttonText,
+              text,
               style: const TextStyle(
                 fontSize: 16,
               ),

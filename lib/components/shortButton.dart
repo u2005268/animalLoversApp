@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ShortButton extends StatefulWidget {
   final Function()? onTap;
   final String buttonText;
-  bool isTapped;
+  bool isTapped = false;
   ShortButton(
       {Key? key,
       required this.onTap,
@@ -21,14 +21,16 @@ class _ShortButtonState extends State<ShortButton> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          widget.isTapped = !widget.isTapped;
+          if (widget.isTapped == false) {
+            widget.isTapped = !widget.isTapped;
+          }
         });
         if (widget.onTap != null) {
           widget.onTap!();
         }
       },
       child: Container(
-        padding: EdgeInsets.all(5),
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         // margin: EdgeInsets.symmetric(horizontal: 165),
         decoration: BoxDecoration(
           color: widget.isTapped ? Color(0xFF1B4332) : Color(0xFFD2FFD2),

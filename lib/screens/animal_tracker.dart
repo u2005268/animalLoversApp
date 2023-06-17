@@ -1,4 +1,5 @@
 import 'package:animal_lovers_app/screens/bottom_bar.dart';
+import 'package:animal_lovers_app/screens/donate.dart';
 import 'package:animal_lovers_app/screens/info.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
 import 'package:animal_lovers_app/screens/side_bar.dart';
@@ -17,9 +18,9 @@ class _AnimalTrackerState extends State<AnimalTracker> {
   final user = FirebaseAuth.instance.currentUser!;
 
   void navigateDonate() {
-    //navigate to profile page
+    //navigate to donate page
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const ProfilePage()));
+        context, MaterialPageRoute(builder: (context) => const DonatePage()));
   }
 
   void navigateInfo() {
