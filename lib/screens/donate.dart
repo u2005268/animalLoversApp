@@ -1,5 +1,4 @@
 import 'package:animal_lovers_app/components/donationCard.dart';
-import 'package:animal_lovers_app/components/shortButton.dart';
 import 'package:animal_lovers_app/screens/info.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
 import 'package:animal_lovers_app/screens/side_bar.dart';
