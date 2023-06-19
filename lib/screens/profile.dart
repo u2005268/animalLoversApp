@@ -59,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   String getPhotoUrl() {
     if (photoUrl == null || photoUrl!.isEmpty) {
-      return 'https://firebasestorage.googleapis.com/v0/b/animalloversapp-421f0.appspot.com/o/users%2Fuser.png?alt=media&token=edb26ab4-f360-45f8-9d3c-01fdcc8707eb';
+      return 'assets/images/user.png'; // Replace with the asset image path
     }
     return photoUrl!;
   }
@@ -103,7 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
           username: username ?? '',
           email: currentUser.email!,
           bio: bio ?? '',
-          photoUrl: getPhotoUrl(),
+          photoUrl: photoUrl ?? '',
           onProfileUpdated: handleProfileUpdated,
         ),
       ),
@@ -111,17 +111,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
     if (updatedUserData != null) {
       setState(() {
-        username = updatedUserData['username'];
         bio = updatedUserData['bio'];
-        photoUrl = updatedUserData['photoUrl'];
       });
     }
   }
 
-  void handleProfileUpdated(String updatedBio, String updatedPhotoUrl) {
+  void handleProfileUpdated(String updatedBio) {
     setState(() {
       bio = updatedBio;
-      photoUrl = updatedPhotoUrl;
     });
   }
 
@@ -171,9 +168,15 @@ class _ProfilePageState extends State<ProfilePage> {
                     height: 60,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(100),
-                      child: Image.network(
-                        getPhotoUrl(),
-                      ),
+                      child: photoUrl != null && photoUrl!.isNotEmpty
+                          ? Image.network(
+                              photoUrl!,
+                              // Specify any additional properties for the network image if needed
+                            )
+                          : Image.asset(
+                              'images/user.png', // Replace with the asset image path
+                              // Specify any additional properties for the asset image if needed
+                            ),
                     ),
                   ),
                   Text(

@@ -10,15 +10,15 @@ class EditProfilePage extends StatefulWidget {
   final String username;
   final String email;
   final String bio;
-  final String photoUrl;
-  final Function(String bio, String photoUrl) onProfileUpdated;
+  final String? photoUrl;
+  final Function(String bio) onProfileUpdated;
 
   const EditProfilePage({
     Key? key,
     required this.username,
     required this.email,
     required this.bio,
-    required this.photoUrl,
+    this.photoUrl,
     required this.onProfileUpdated,
   }) : super(key: key);
 
@@ -71,7 +71,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.dispose();
   }
 
-  void updateProfileData(String updatedBio, String updatedPhotoUrl) async {
+  void updateProfileData(String updatedBio) async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
@@ -80,10 +80,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
             FirebaseFirestore.instance.collection('users').doc(userId);
         await userRef.update({
           'bio': updatedBio,
-          'photoUrl': updatedPhotoUrl,
         });
       }
-      widget.onProfileUpdated(updatedBio, updatedPhotoUrl);
+      widget.onProfileUpdated(updatedBio);
       Navigator.pop(context);
     } catch (error) {
       showErrorMessage('Failed to update profile data. Please try again.');
@@ -140,16 +139,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         height: 70,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(100),
-                          child: Image.network(
-                            widget.photoUrl,
-                          ),
+                          child: widget.photoUrl != null &&
+                                  widget.photoUrl!.isNotEmpty
+                              ? Image.network(
+                                  widget.photoUrl!,
+                                  // Specify any additional properties for the network image if needed
+                                )
+                              : Image.asset(
+                                  'images/user.png',
+                                ),
                         ),
                       ),
                       Positioned(
                         bottom: 0,
                         right: 0,
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(0),
                           child: Container(
                             width: 25,
                             height: 25,
@@ -206,9 +211,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           buttonText: "Update",
                           onTap: () {
                             String updatedBio = _bioController.text;
-                            String updatedPhotoUrl = widget.photoUrl;
-
-                            updateProfileData(updatedBio, updatedPhotoUrl);
+                            updateProfileData(updatedBio);
                           },
                         ),
                       ),
