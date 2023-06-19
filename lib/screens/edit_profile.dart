@@ -5,13 +5,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class EditProfilePage extends StatefulWidget {
   final String username;
   final String email;
   final String bio;
   final String? photoUrl;
-  final Function(String bio) onProfileUpdated;
+  final Function(String bio, String? photoUrl) onProfileUpdated;
 
   const EditProfilePage({
     Key? key,
@@ -31,6 +34,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _emailController;
   late TextEditingController _bioController;
   late TextEditingController _changePasswordController;
+  File? _imageFile;
+  late String? _currentPhotoUrl;
 
   void showErrorMessage(String message) {
     showDialog(
@@ -43,10 +48,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Future passwordReset() async {
+  Future<void> passwordReset() async {
     try {
-      await FirebaseAuth.instance
-          .sendPasswordResetEmail(email: _emailController.text);
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: _emailController.text,
+      );
       showErrorMessage("Password reset link sent! Check your email.");
     } on FirebaseAuthException catch (e) {
       showErrorMessage(e.message.toString());
@@ -60,6 +66,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _emailController = TextEditingController(text: widget.email);
     _bioController = TextEditingController(text: widget.bio);
     _changePasswordController = TextEditingController();
+    _currentPhotoUrl = widget.photoUrl;
   }
 
   @override
@@ -71,21 +78,169 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.dispose();
   }
 
-  void updateProfileData(String updatedBio) async {
+  Future<void> _selectImage() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select Image'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                GestureDetector(
+                  child: Text('Camera'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _getImageFromCamera();
+                  },
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                ),
+                GestureDetector(
+                  child: Text('Gallery'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _getImageFromGallery();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _getImageFromCamera() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.camera);
+
+    if (pickedImage != null) {
+      setState(() {
+        _imageFile = File(pickedImage.path);
+      });
+    }
+  }
+
+  Future<void> _getImageFromGallery() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      setState(() {
+        _imageFile = File(pickedImage.path);
+      });
+    }
+  }
+
+  void updateProfileData(String updatedBio, String? photoUrl) async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
         final userId = currentUser.uid;
         final userRef =
             FirebaseFirestore.instance.collection('users').doc(userId);
+
+        if (_imageFile != null) {
+          // Upload new image and create/update 'photoUrl' field
+          final storageRef =
+              FirebaseStorage.instance.ref().child('users/$userId.jpg');
+          final uploadTask = storageRef.putFile(_imageFile!);
+          final snapshot = await uploadTask.whenComplete(() {});
+          final downloadUrl = await snapshot.ref.getDownloadURL();
+          photoUrl = downloadUrl;
+          await userRef.set({
+            'photoUrl': downloadUrl,
+          }, SetOptions(merge: true));
+        }
+
+        // Update 'bio' field
         await userRef.update({
           'bio': updatedBio,
         });
+
+        widget.onProfileUpdated(updatedBio, photoUrl);
+
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Update Successful'),
+              content: Text('Your profile has been updated successfully.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("OK", style: TextStyle(color: Colors.blue)),
+                ),
+              ],
+            );
+          },
+        );
       }
-      widget.onProfileUpdated(updatedBio);
-      Navigator.pop(context);
     } catch (error) {
       showErrorMessage('Failed to update profile data. Please try again.');
+    }
+  }
+
+  Future<void> _deleteImage() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Delete Image'),
+          content: Text('Are you sure you want to delete your profile image?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("No", style: TextStyle(color: Colors.blue)),
+            ),
+            TextButton(
+              onPressed: _performDeleteImage,
+              child: Text("Yes", style: TextStyle(color: Colors.blue)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _performDeleteImage() async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        final userId = currentUser.uid;
+        final userRef =
+            FirebaseFirestore.instance.collection('users').doc(userId);
+
+        if (widget.photoUrl != null && widget.photoUrl!.isNotEmpty) {
+          // Delete image from Firebase Storage
+          final storageRef =
+              FirebaseStorage.instance.refFromURL(widget.photoUrl!);
+          await storageRef.delete();
+          await userRef.update({'photoUrl': null});
+
+          // Update the _currentPhotoUrl to null
+          setState(() {
+            _currentPhotoUrl = null;
+          });
+
+          // Update the photoUrl in the parent widget
+          widget.onProfileUpdated(widget.bio, null);
+        }
+
+        setState(() {
+          _imageFile = null;
+        });
+      }
+
+      Navigator.of(context).pop(); // Close the dialog
+    } catch (error) {
+      showErrorMessage('Failed to delete the profile image. Please try again.');
     }
   }
 
@@ -134,45 +289,70 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 children: [
                   Stack(
                     children: [
-                      SizedBox(
+                      Container(
                         width: 70,
                         height: 70,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.grey[400] ?? Colors.transparent,
+                            width: 1.0, // Customize the border width here
+                          ),
+                        ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(100),
-                          child: widget.photoUrl != null &&
-                                  widget.photoUrl!.isNotEmpty
-                              ? Image.network(
-                                  widget.photoUrl!,
-                                  // Specify any additional properties for the network image if needed
-                                )
-                              : Image.asset(
-                                  'images/user.png',
-                                ),
+                          child: _imageFile != null
+                              ? Image.file(_imageFile!)
+                              : (_currentPhotoUrl != null &&
+                                      _currentPhotoUrl!.isNotEmpty)
+                                  ? Image.network(_currentPhotoUrl!)
+                                  : Image.asset('images/user.png'),
                         ),
                       ),
                       Positioned(
                         bottom: 0,
                         right: 0,
-                        child: Padding(
-                          padding: const EdgeInsets.all(0),
-                          child: Container(
-                            width: 25,
-                            height: 25,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              color: Color(0xFFD7FFD7),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  spreadRadius: 2,
-                                  blurRadius: 2,
-                                  offset: Offset(0, 1),
+                        child: Container(
+                          width: 25,
+                          height: 25,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFFD7FFD7),
+                          ),
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: FractionalTranslation(
+                              translation: Offset(-0.2, -0.2),
+                              child: Transform.translate(
+                                offset: Offset(0.5, 0.5),
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.camera_alt_rounded,
+                                    size: 20,
+                                  ),
+                                  onPressed: _selectImage,
                                 ),
-                              ],
+                              ),
                             ),
-                            child: Icon(
-                              Icons.camera_alt_rounded,
-                              size: 20,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 30,
+                        left: 12,
+                        child: Visibility(
+                          visible: _currentPhotoUrl != null &&
+                              _currentPhotoUrl!.isNotEmpty,
+                          child: GestureDetector(
+                            onTap: _deleteImage,
+                            child: Container(
+                              width: 25,
+                              height: 25,
+                              child: Icon(
+                                Icons.delete_outline_rounded,
+                                size: 40,
+                                color: Colors.grey[400],
+                              ),
                             ),
                           ),
                         ),
@@ -181,12 +361,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                   Gap(5),
                   Text(
-                    _usernameController.text,
+                    widget.username,
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                   ),
                   Gap(5),
                   Text(
-                    _emailController.text,
+                    widget.email,
                     style: TextStyle(fontSize: 15, color: Colors.grey[700]),
                   ),
                   Gap(20),
@@ -211,7 +391,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           buttonText: "Update",
                           onTap: () {
                             String updatedBio = _bioController.text;
-                            updateProfileData(updatedBio);
+                            updateProfileData(updatedBio, _currentPhotoUrl);
                           },
                         ),
                       ),

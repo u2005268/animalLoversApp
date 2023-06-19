@@ -52,7 +52,7 @@ class _RegisterPageState extends State<RegisterPage> {
         Navigator.pop(context);
         // Add user data to Firestore
         createUsersDoc(userId, _usernameController.text.trim(),
-            _emailController.text.trim(), "", "");
+            _emailController.text.trim(), "");
       } else {
         Navigator.pop(context);
         //show error message
@@ -78,13 +78,11 @@ class _RegisterPageState extends State<RegisterPage> {
     String username,
     String email,
     String bio,
-    String photoUrl,
   ) async {
     await FirebaseFirestore.instance.collection('users').doc(userId).set({
       'username': username,
       'email': email,
       'bio': bio,
-      'photoUrl': photoUrl,
     });
   }
 

@@ -112,13 +112,15 @@ class _ProfilePageState extends State<ProfilePage> {
     if (updatedUserData != null) {
       setState(() {
         bio = updatedUserData['bio'];
+        photoUrl = updatedUserData['photoUrl'];
       });
     }
   }
 
-  void handleProfileUpdated(String updatedBio) {
+  void handleProfileUpdated(String? updatedBio, String? updatedPhotoUrl) {
     setState(() {
       bio = updatedBio;
+      photoUrl = updatedPhotoUrl;
     });
   }
 
@@ -163,9 +165,16 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Center(
               child: Column(
                 children: [
-                  SizedBox(
-                    width: 60,
-                    height: 60,
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.grey[400] ?? Colors.transparent,
+                        width: 1.0, // Customize the border width here
+                      ),
+                    ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(100),
                       child: photoUrl != null && photoUrl!.isNotEmpty
