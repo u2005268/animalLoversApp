@@ -4,6 +4,8 @@ import 'package:animal_lovers_app/screens/donate.dart';
 import 'package:animal_lovers_app/screens/edit_profile.dart';
 import 'package:animal_lovers_app/screens/info.dart';
 import 'package:animal_lovers_app/screens/side_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -16,28 +18,111 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  String? username;
+  String? bio;
+  String? photoUrl;
+  final currentUser = FirebaseAuth.instance.currentUser!;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    try {
+      final userId = currentUser.uid;
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (snapshot.exists) {
+        final userData = snapshot.data();
+        setState(() {
+          username = userData?['username'];
+          bio = userData?['bio'];
+          photoUrl = userData?['photoUrl'];
+        });
+      }
+    } catch (error) {
+      print('Error fetching user data: $error');
+    }
+  }
+
+  String getBioText() {
+    if (bio == null || bio!.isEmpty) {
+      return 'You do not have any bio yet. Do add it by tapping the edit icon button';
+    }
+    return bio!;
+  }
+
+  String getPhotoUrl() {
+    if (photoUrl == null || photoUrl!.isEmpty) {
+      return 'https://firebasestorage.googleapis.com/v0/b/animalloversapp-421f0.appspot.com/o/users%2Fuser.png?alt=media&token=edb26ab4-f360-45f8-9d3c-01fdcc8707eb';
+    }
+    return photoUrl!;
+  }
+
   void navigateDonate() {
-    //navigate to donate page
+    // Navigate to donate page
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const DonatePage()));
+      context,
+      MaterialPageRoute(builder: (context) => const DonatePage()),
+    );
   }
 
   void navigateInfo() {
-    //pop drawer
+    // Pop drawer
     Navigator.pop(context);
 
-    //navigate to info page
+    // Navigate to info page
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => InfoPage()));
+      context,
+      MaterialPageRoute(builder: (context) => InfoPage()),
+    );
   }
 
   void navigateProfile() {
-    //pop drawer
+    // Pop drawer
     Navigator.pop(context);
 
-    //navigate to profile page
+    // Navigate to profile page
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => ProfilePage()));
+      context,
+      MaterialPageRoute(builder: (context) => ProfilePage()),
+    );
+  }
+
+  void navigateEditProfile() async {
+    // Navigate to edit profile page
+    final updatedUserData = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfilePage(
+          username: username ?? '',
+          email: currentUser.email!,
+          bio: bio ?? '',
+          photoUrl: getPhotoUrl(),
+          onProfileUpdated: handleProfileUpdated,
+        ),
+      ),
+    );
+
+    if (updatedUserData != null) {
+      setState(() {
+        username = updatedUserData['username'];
+        bio = updatedUserData['bio'];
+        photoUrl = updatedUserData['photoUrl'];
+      });
+    }
+  }
+
+  void handleProfileUpdated(String updatedBio, String updatedPhotoUrl) {
+    setState(() {
+      bio = updatedBio;
+      photoUrl = updatedPhotoUrl;
+    });
   }
 
   @override
@@ -52,112 +137,113 @@ class _ProfilePageState extends State<ProfilePage> {
               Icons.edit_outlined,
               color: Color(0xFF0F281D),
             ),
-            onPressed: () {
-              //navigate to profile page
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => EditProfilePage()));
-            },
+            onPressed: navigateEditProfile,
           )
         ],
-        // Set the icon color to black,
       ),
       drawer: SideBar(
-          onDonateTap: navigateDonate,
-          onInfoTap: navigateInfo,
-          onProfileTap: navigateProfile),
+        onDonateTap: navigateDonate,
+        onInfoTap: navigateInfo,
+        onProfileTap: navigateProfile,
+      ),
       bottomNavigationBar: BottomBar(),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
           child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: [0.3646, 0.9062, 1.0],
-                  colors: [
-                    Colors.white,
-                    Colors.white,
-                    Color.fromRGBO(182, 255, 182, 0.5),
-                  ],
-                ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0.3646, 0.9062, 1.0],
+                colors: [
+                  Colors.white,
+                  Colors.white,
+                  Color.fromRGBO(182, 255, 182, 0.5),
+                ],
               ),
-              child: Center(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: 90,
-                      height: 90,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child: Image.asset(
-                          'images/user.png',
+            ),
+            child: Center(
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image.network(
+                        getPhotoUrl(),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    username ?? '',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                  ),
+                  Gap(5),
+                  Text(
+                    currentUser.email!,
+                    style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                  ),
+                  Gap(10),
+                  Container(
+                    width: 450,
+                    height: 80,
+                    padding: EdgeInsets.all(20),
+                    margin: EdgeInsets.symmetric(horizontal: 25),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF213221),
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Text(
+                      getBioText(),
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ),
+                  Gap(40),
+                  Text(
+                    "My Favorites",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                  ),
+                  Gap(10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 35.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 90,
+                          child: ShortButton(
+                            buttonText: "Species",
+                            isTapped: false,
+                            onTap: () {},
+                          ),
                         ),
-                      ),
-                    ),
-                    Text(
-                      "Peimun01",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                    ),
-                    Gap(5),
-                    Text(
-                      "peimun030601@gmail.com",
-                      style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-                    ),
-                    Gap(10),
-                    Container(
-                      padding: EdgeInsets.all(20),
-                      margin: EdgeInsets.symmetric(horizontal: 25),
-                      decoration: BoxDecoration(
-                        color: Color(0xFF213221),
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: Text(
-                        "Embracing the beauty of all creatures, I find solace and inspiration in the unconditional love of animals.",
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 14),
-                      ),
-                    ),
-                    Gap(40),
-                    Text(
-                      "My Favourites",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                    ),
-                    Gap(10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 35.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Flexible(
-                            child: ShortButton(
-                              buttonText: "Species",
-                              isTapped: false,
-                              onTap: () {},
-                            ),
+                        Gap(20),
+                        Container(
+                          width: 90,
+                          child: ShortButton(
+                            buttonText: "Observation",
+                            isTapped: false,
+                            onTap: () {},
                           ),
-                          Gap(20),
-                          Flexible(
-                            child: ShortButton(
-                              buttonText: "Observation",
-                              isTapped: false,
-                              onTap: () {},
-                            ),
-                          ),
-                          Gap(20),
-                          ShortButton(
+                        ),
+                        Gap(20),
+                        Container(
+                          width: 90,
+                          child: ShortButton(
                             buttonText: "News",
                             isTapped: true,
                             onTap: () {},
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              )),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

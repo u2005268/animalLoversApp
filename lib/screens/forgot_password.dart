@@ -35,7 +35,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     try {
       await FirebaseAuth.instance
           .sendPasswordResetEmail(email: _emailController.text.trim());
-      showErrorMessage("Password rest link sent! Check your email.");
+      showErrorMessage("Password reset link sent! Check your email.");
     } on FirebaseAuthException catch (e) {
       print(e);
       if (_emailController.text.trim().length == 0) {

@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 class LongButton extends StatelessWidget {
   final Function()? onTap;
   final String buttonText;
-
-  const LongButton({Key? key, required this.onTap, required this.buttonText})
-      : super(key: key);
+  final Color buttonColor;
+  const LongButton({
+    Key? key,
+    required this.onTap,
+    required this.buttonText,
+    this.buttonColor = const Color(0xFF1B4332),
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +20,7 @@ class LongButton extends StatelessWidget {
         padding: EdgeInsets.all(15),
         margin: EdgeInsets.symmetric(horizontal: 25),
         decoration: BoxDecoration(
-          color: Color(0xFF1B4332),
+          color: buttonColor,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(

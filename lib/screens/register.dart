@@ -42,14 +42,17 @@ class _RegisterPageState extends State<RegisterPage> {
       else if (_passwordController.text.trim() ==
           _confirmPasswordController.text.trim()) {
         //create user
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim());
+        final userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+                email: _emailController.text.trim(),
+                password: _passwordController.text.trim());
+        final userId = userCredential.user!.uid;
+
         //pop the loading circle
         Navigator.pop(context);
-        //add username
-        addUsername(
-            _usernameController.text.trim(), _emailController.text.trim());
+        // Add user data to Firestore
+        createUsersDoc(userId, _usernameController.text.trim(),
+            _emailController.text.trim(), "", "");
       } else {
         Navigator.pop(context);
         //show error message
@@ -70,10 +73,19 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  Future addUsername(String username, String email) async {
-    await FirebaseFirestore.instance
-        .collection('users')
-        .add({'username': username, 'email': email});
+  Future createUsersDoc(
+    String userId,
+    String username,
+    String email,
+    String bio,
+    String photoUrl,
+  ) async {
+    await FirebaseFirestore.instance.collection('users').doc(userId).set({
+      'username': username,
+      'email': email,
+      'bio': bio,
+      'photoUrl': photoUrl,
+    });
   }
 
   //error message popup

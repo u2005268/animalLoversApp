@@ -1,15 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class UnderlineTextField extends StatelessWidget {
+class UnderlineTextfield extends StatelessWidget {
   final controller;
   final String hintText;
-  final bool obsureText;
-  const UnderlineTextField({
+  final bool obscureText;
+
+  const UnderlineTextfield({
     Key? key,
     required this.controller,
     required this.hintText,
-    required this.obsureText,
+    required this.obscureText,
   }) : super(key: key);
 
   @override
@@ -18,7 +19,7 @@ class UnderlineTextField extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8.0),
       child: TextField(
         controller: controller,
-        obscureText: obsureText,
+        obscureText: obscureText,
         decoration: InputDecoration(
           contentPadding:
               EdgeInsets.symmetric(horizontal: 10.0, vertical: 12.0),
