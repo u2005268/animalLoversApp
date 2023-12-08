@@ -1,10 +1,7 @@
-import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customAppbar.dart';
-import 'package:animal_lovers_app/widgets/bottom_bar.dart';
+import 'package:animal_lovers_app/widgets/bottomBar.dart';
 import 'package:animal_lovers_app/widgets/longCard.dart';
-import 'package:animal_lovers_app/screens/donate.dart';
-import 'package:animal_lovers_app/screens/profile.dart';
-import 'package:animal_lovers_app/widgets/side_bar.dart';
+import 'package:animal_lovers_app/widgets/sideBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,30 +23,6 @@ class _InfoPageState extends State<InfoPage> {
   initState() {
     super.initState();
     _streamInfoItems = _referenceInfoList.snapshots();
-  }
-
-  void navigateDonate() {
-    //navigate to donate page
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const DonatePage()));
-  }
-
-  void navigateInfo() {
-    //pop drawer
-    Navigator.pop(context);
-
-    //navigate to info page
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => InfoPage()));
-  }
-
-  void navigateProfile() {
-    //pop drawer
-    Navigator.pop(context);
-
-    //navigate to profile page
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => ProfilePage()));
   }
 
   @override
@@ -106,7 +79,7 @@ class _InfoPageState extends State<InfoPage> {
                                     const EdgeInsets.symmetric(vertical: 10.0),
                                 child: LongCard(
                                   url: url,
-                                  text: title,
+                                  text1: title,
                                 ),
                               );
                             },

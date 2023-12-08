@@ -1,9 +1,9 @@
 import 'package:animal_lovers_app/widgets/customAppbar.dart';
-import 'package:animal_lovers_app/widgets/bottom_bar.dart';
+import 'package:animal_lovers_app/widgets/bottomBar.dart';
 import 'package:animal_lovers_app/widgets/donationCard.dart';
 import 'package:animal_lovers_app/screens/info.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
-import 'package:animal_lovers_app/widgets/side_bar.dart';
+import 'package:animal_lovers_app/widgets/sideBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

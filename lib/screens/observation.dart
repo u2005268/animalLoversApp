@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/screens/observation_history.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customAppbar.dart';
 import 'package:animal_lovers_app/widgets/dashedBorder.dart';
@@ -18,7 +19,8 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 
 class ObservationPage extends StatefulWidget {
-  const ObservationPage({Key? key}) : super(key: key);
+  final String? observationId;
+  const ObservationPage({Key? key, this.observationId}) : super(key: key);
 
   @override
   State<ObservationPage> createState() => _ObservationPageState();
@@ -27,7 +29,7 @@ class ObservationPage extends StatefulWidget {
 class _ObservationPageState extends State<ObservationPage> {
   final _formKey = GlobalKey<FormState>(); // Create a GlobalKey for the form
   bool _isChecked = false;
-  File? _imageFile; // Use XFile from image_picker package
+  File? _imageFile;
   TextEditingController _whatDidYouSeeController = TextEditingController();
   TextEditingController _locationController = TextEditingController();
   final _dateController = TextEditingController();
@@ -35,13 +37,14 @@ class _ObservationPageState extends State<ObservationPage> {
   TextEditingController _additionalInformationController =
       TextEditingController();
   late DateTime selectedDate = DateTime.now();
-
+  String? imageUrl;
   @override
   void initState() {
     super.initState();
     selectedDate = DateTime.now();
     getCurrentDateTime(); // Set initial date and time
     _getCurrentLocation();
+    loadObservationData();
   }
 
 // Function to get the current date and time
@@ -168,6 +171,34 @@ class _ObservationPageState extends State<ObservationPage> {
     );
   }
 
+  //load observation data based on observationId
+  Future<void> loadObservationData() async {
+    try {
+      if (widget.observationId != null) {
+        final observationDoc = await FirebaseFirestore.instance
+            .collection('observations')
+            .doc(widget.observationId)
+            .get();
+
+        if (observationDoc.exists) {
+          final data = observationDoc.data() as Map<String, dynamic>;
+          setState(() {
+            _whatDidYouSeeController.text = data['whatDidYouSee'];
+            _locationController.text = data['location'];
+            _dateController.text = data['date'];
+            _timeController.text = data['time'];
+            _additionalInformationController.text =
+                data['additionalInformation'] ?? "";
+            imageUrl = data['imageUrl'];
+          });
+        }
+      }
+    } catch (e) {
+      // Handle any errors while fetching data
+      print('Error loading observation data: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -227,7 +258,7 @@ class _ObservationPageState extends State<ObservationPage> {
                         return null;
                       },
                       suffixIcon: IconButton(
-                        icon: Icon(Icons.map_outlined), // Map icon
+                        icon: Icon(Icons.location_on_outlined),
                         onPressed: () {
                           _getCurrentLocation(); // Update location when tapped
                         },
@@ -275,22 +306,38 @@ class _ObservationPageState extends State<ObservationPage> {
                       child: Container(
                         width: MediaQuery.of(context).size.width - 20,
                         height: 250,
-                        padding: EdgeInsets.all(16), // Adjust padding as needed
+                        padding: EdgeInsets.all(16),
                         child: CustomPaint(
                           painter: DashedBorderPainter(),
                           child: Center(
                             child: Column(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.center, // Center vertically
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                // Upload logo or selected image
-                                if (_imageFile == null)
+                                // Display the selected image or upload button
+                                if (_imageFile != null)
+                                  Expanded(
+                                    child: Image.file(
+                                      File(_imageFile!.path),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                else if (imageUrl !=
+                                    null) // Check if you have an imageUrl
+                                  Expanded(
+                                    child: Image.network(
+                                      imageUrl!, // Use the imageUrl
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                else
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment
-                                        .center, // Center the row
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.upload_file,
-                                          size: 20, color: Colors.grey),
+                                      Icon(
+                                        Icons.upload_file,
+                                        size: 20,
+                                        color: Colors.grey,
+                                      ),
                                       Gap(5),
                                       Text(
                                         "Upload Photo",
@@ -301,11 +348,6 @@ class _ObservationPageState extends State<ObservationPage> {
                                         ),
                                       ),
                                     ],
-                                  )
-                                else
-                                  Expanded(
-                                    child: Image.file(File(_imageFile!.path),
-                                        fit: BoxFit.cover),
                                   ),
                               ],
                             ),
@@ -313,6 +355,7 @@ class _ObservationPageState extends State<ObservationPage> {
                         ),
                       ),
                     ),
+
                     Padding(
                       padding:
                           EdgeInsets.symmetric(vertical: 0, horizontal: 25),
@@ -372,10 +415,9 @@ class _ObservationPageState extends State<ObservationPage> {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      // Handle the case where the user is not authenticated
-      // You can show an error message or redirect to the login screen
       return;
     }
+
     // Get values from the text fields
     String userId = user.uid; // User ID
     String whatDidYouSee = _whatDidYouSeeController.text;
@@ -400,8 +442,57 @@ class _ObservationPageState extends State<ObservationPage> {
     }
 
     try {
-      // Upload the image to Firebase Storage
-      if (_imageFile != null) {
+      if (widget.observationId != null) {
+        // Retrieve the previous image URL
+        final observationDoc = await FirebaseFirestore.instance
+            .collection('observations')
+            .doc(widget.observationId)
+            .get();
+        if (observationDoc.exists) {
+          final previousImageUrl = observationDoc.data()?['imageUrl'];
+
+          // Update an existing observation based on observationId
+          await observations.doc(widget.observationId).update({
+            'whatDidYouSee': whatDidYouSee,
+            'location': location,
+            'date': date,
+            'time': time,
+            'additionalInformation': additionalInformation,
+          });
+
+          // Check if a new image has been selected
+          if (_imageFile != null) {
+            // Upload the new image to Firebase Storage
+            Reference storageReference = FirebaseStorage.instance
+                .ref()
+                .child('observation_images/${DateTime.now()}.png');
+            await storageReference.putFile(_imageFile!);
+            String imageUrl = await storageReference.getDownloadURL();
+
+            // Update the observation document with the new image URL
+            await observations.doc(widget.observationId).update({
+              'imageUrl': imageUrl, // Store the new image URL
+            });
+
+            // Delete the previous image from Firebase Storage
+            if (previousImageUrl != null) {
+              final storageRef =
+                  FirebaseStorage.instance.refFromURL(previousImageUrl);
+              await storageRef.delete();
+            }
+          }
+        }
+        showStatusPopup(context, true);
+        // Show success popup with a delay
+        Future.delayed(Duration(seconds: 1), () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ObservationHistoryPage()),
+          );
+        });
+      }
+      // Upload a new observation with an image
+      else if (_imageFile != null) {
         Reference storageReference = FirebaseStorage.instance
             .ref()
             .child('observation_images/${DateTime.now()}.png');
@@ -424,7 +515,7 @@ class _ObservationPageState extends State<ObservationPage> {
         // Clear the text fields and image file after a successful submission
         _resetForm();
       } else {
-        // showStatusPopup(context, false);
+        showStatusPopup(context, false);
       }
     } catch (e) {
       showStatusPopup(context, false);

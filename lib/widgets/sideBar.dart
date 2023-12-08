@@ -1,5 +1,6 @@
 import 'package:animal_lovers_app/screens/donate.dart';
 import 'package:animal_lovers_app/screens/info.dart';
+import 'package:animal_lovers_app/screens/observation_history.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
 import 'package:animal_lovers_app/widgets/sidebarListtile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -56,8 +57,15 @@ class SideBar extends StatelessWidget {
             ),
             SidebarListtile(
               icon: Icons.remove_red_eye_outlined,
-              text: "Observation",
-              onTap: () => Navigator.pop(context),
+              text: " My Observation",
+              onTap: () {
+                Navigator.pop(context); // Close the sidebar
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ObservationHistoryPage()),
+                );
+              },
             ),
             SidebarListtile(
               icon: Icons.rss_feed_outlined,
