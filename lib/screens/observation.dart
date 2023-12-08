@@ -5,6 +5,7 @@ import 'package:animal_lovers_app/widgets/longButton.dart';
 import 'package:animal_lovers_app/widgets/showStatusPopUp.dart';
 import 'package:animal_lovers_app/widgets/underlineTextfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -367,7 +368,16 @@ class _ObservationPageState extends State<ObservationPage> {
   }
 
   void _handleSubmission() async {
+    // Get the current user
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      // Handle the case where the user is not authenticated
+      // You can show an error message or redirect to the login screen
+      return;
+    }
     // Get values from the text fields
+    String userId = user.uid; // User ID
     String whatDidYouSee = _whatDidYouSeeController.text;
     String location = _locationController.text; // Location text field
     String date = _dateController.text;
@@ -400,6 +410,7 @@ class _ObservationPageState extends State<ObservationPage> {
 
         // Add a new document to the "observations" collection with image URL
         await observations.add({
+          'userId': userId, // User ID
           'whatDidYouSee': whatDidYouSee,
           'location': location,
           'date': date,
