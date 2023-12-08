@@ -1,5 +1,7 @@
-import 'package:animal_lovers_app/components/longButton.dart';
-import 'package:animal_lovers_app/components/textfield.dart';
+import 'package:animal_lovers_app/utils/app_styles.dart';
+import 'package:animal_lovers_app/widgets/customAppbar.dart';
+import 'package:animal_lovers_app/widgets/longButton.dart';
+import 'package:animal_lovers_app/widgets/customizedTextfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -49,19 +51,26 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.3646, 0.9062, 1.0],
-            colors: [
-              Colors.white,
-              Colors.white,
-              Color.fromRGBO(182, 255, 182, 0.5),
-            ],
+      appBar: CustomAppBar(
+        titleText: "",
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Styles.secondaryColor,
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.chevron_left_sharp,
+              ),
+              onPressed: () => Navigator.pop(context),
+            ),
           ),
         ),
+      ),
+      body: Container(
+        decoration: Styles.gradientBackground(),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(

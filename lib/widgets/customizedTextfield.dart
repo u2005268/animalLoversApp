@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -26,12 +27,12 @@ class CustomizedTextField extends StatelessWidget {
           contentPadding:
               EdgeInsets.symmetric(horizontal: 25.0, vertical: 12.0),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFFD7FFD7)),
+            borderSide: BorderSide(color: Styles.secondaryColor),
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.white),
           ),
-          fillColor: Color(0xFFD7FFD7),
+          fillColor: Styles.secondaryColor,
           filled: true,
           hintText: hintText,
           hintStyle: TextStyle(color: Colors.grey),

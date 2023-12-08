@@ -1,9 +1,9 @@
-import 'package:animal_lovers_app/components/bottom_bar.dart';
-import 'package:animal_lovers_app/components/shortButton.dart';
-import 'package:animal_lovers_app/screens/donate.dart';
+import 'package:animal_lovers_app/utils/app_styles.dart';
+import 'package:animal_lovers_app/widgets/customAppbar.dart';
+import 'package:animal_lovers_app/widgets/bottom_bar.dart';
+import 'package:animal_lovers_app/widgets/shortButton.dart';
 import 'package:animal_lovers_app/screens/edit_profile.dart';
-import 'package:animal_lovers_app/screens/info.dart';
-import 'package:animal_lovers_app/screens/side_bar.dart';
+import 'package:animal_lovers_app/widgets/side_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -64,36 +64,6 @@ class _ProfilePageState extends State<ProfilePage> {
     return photoUrl!;
   }
 
-  void navigateDonate() {
-    // Navigate to donate page
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const DonatePage()),
-    );
-  }
-
-  void navigateInfo() {
-    // Pop drawer
-    Navigator.pop(context);
-
-    // Navigate to info page
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => InfoPage()),
-    );
-  }
-
-  void navigateProfile() {
-    // Pop drawer
-    Navigator.pop(context);
-
-    // Navigate to profile page
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ProfilePage()),
-    );
-  }
-
   void navigateEditProfile() async {
     // Navigate to edit profile page
     final updatedUserData = await Navigator.push(
@@ -127,41 +97,25 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        actions: [
+      appBar: CustomAppBar(
+        titleText: "",
+        actionWidgets: [
           IconButton(
             icon: Icon(
               Icons.edit_outlined,
-              color: Color(0xFF0F281D),
+              color: Styles.primaryColor,
             ),
             onPressed: navigateEditProfile,
           )
         ],
       ),
-      drawer: SideBar(
-        onDonateTap: navigateDonate,
-        onInfoTap: navigateInfo,
-        onProfileTap: navigateProfile,
-      ),
+      drawer: SideBar(),
       bottomNavigationBar: BottomBar(),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
           child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: [0.3646, 0.9062, 1.0],
-                colors: [
-                  Colors.white,
-                  Colors.white,
-                  Color.fromRGBO(182, 255, 182, 0.5),
-                ],
-              ),
-            ),
+            color: Colors.white,
             child: Center(
               child: Column(
                 children: [
@@ -204,7 +158,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     padding: EdgeInsets.all(20),
                     margin: EdgeInsets.symmetric(horizontal: 25),
                     decoration: BoxDecoration(
-                      color: Color(0xFF213221),
+                      color: Styles.primaryColor,
                       borderRadius: BorderRadius.circular(22),
                     ),
                     child: Text(

@@ -1,10 +1,11 @@
-import 'package:animal_lovers_app/components/textfield.dart';
+import 'package:animal_lovers_app/utils/app_styles.dart';
+import 'package:animal_lovers_app/widgets/customizedTextfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:animal_lovers_app/components/longButton.dart';
+import 'package:animal_lovers_app/widgets/longButton.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -101,18 +102,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.3646, 0.9062, 1.0],
-            colors: [
-              Colors.white,
-              Colors.white,
-              Color.fromRGBO(182, 255, 182, 0.5),
-            ],
-          ),
-        ),
+        decoration: Styles.gradientBackground(),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -192,7 +182,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1B4332)),
+                              color: Styles.primaryColor),
                         ),
                       ),
                     ],

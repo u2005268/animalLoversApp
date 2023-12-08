@@ -1,4 +1,5 @@
-import 'package:animal_lovers_app/components/longButton.dart';
+import 'package:animal_lovers_app/utils/app_styles.dart';
+import 'package:animal_lovers_app/widgets/longButton.dart';
 import 'package:animal_lovers_app/screens/login_or_register.dart';
 import 'package:animal_lovers_app/services/google_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -107,7 +108,7 @@ class SplashScreen extends StatelessWidget {
                     style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1B4332)),
+                        color: Styles.primaryColor),
                   ),
                 ],
               ),

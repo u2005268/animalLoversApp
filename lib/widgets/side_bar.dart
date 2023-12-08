@@ -1,20 +1,14 @@
-import 'package:animal_lovers_app/components/sidebarListtile.dart';
+import 'package:animal_lovers_app/screens/donate.dart';
+import 'package:animal_lovers_app/screens/info.dart';
+import 'package:animal_lovers_app/screens/profile.dart';
+import 'package:animal_lovers_app/widgets/sidebarListtile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class SideBar extends StatelessWidget {
-  final void Function()? onDonateTap;
-  final void Function()? onInfoTap;
-  final void Function()? onProfileTap;
-
-  const SideBar(
-      {Key? key,
-      required this.onDonateTap,
-      required this.onInfoTap,
-      required this.onProfileTap})
-      : super(key: key);
+  const SideBar({Key? key}) : super(key: key);
 
   // @override
   Widget build(BuildContext context) {
@@ -83,17 +77,35 @@ class SideBar extends StatelessWidget {
             SidebarListtile(
               icon: Icons.monetization_on_outlined,
               text: "Donate",
-              onTap: onDonateTap,
+              onTap: () {
+                Navigator.pop(context); // Close the sidebar
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => DonatePage()),
+                );
+              },
             ),
             SidebarListtile(
               icon: Icons.info_outline,
               text: "Info",
-              onTap: onInfoTap,
+              onTap: () {
+                Navigator.pop(context); // Close the sidebar
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => InfoPage()),
+                );
+              },
             ),
             SidebarListtile(
               icon: Icons.person_3_outlined,
               text: "Profile",
-              onTap: onProfileTap,
+              onTap: () {
+                Navigator.pop(context); // Close the sidebar
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
+              },
             ),
             SidebarListtile(
               icon: Icons.logout_outlined,

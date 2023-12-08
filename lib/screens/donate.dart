@@ -1,8 +1,9 @@
-import 'package:animal_lovers_app/components/bottom_bar.dart';
-import 'package:animal_lovers_app/components/donationCard.dart';
+import 'package:animal_lovers_app/widgets/customAppbar.dart';
+import 'package:animal_lovers_app/widgets/bottom_bar.dart';
+import 'package:animal_lovers_app/widgets/donationCard.dart';
 import 'package:animal_lovers_app/screens/info.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
-import 'package:animal_lovers_app/screens/side_bar.dart';
+import 'package:animal_lovers_app/widgets/side_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -52,46 +53,14 @@ class _DonatePageState extends State<DonatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        titleSpacing: 0,
-        title: Text(
-          "Donate",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            shadows: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.25),
-                offset: Offset(0, 1),
-                blurRadius: 4,
-              ),
-            ],
-          ),
-        ),
-        // Set the icon color to black,
+      appBar: CustomAppBar(
+        titleText: "Donate",
       ),
-      drawer: SideBar(
-        onDonateTap: navigateDonate,
-        onInfoTap: navigateInfo,
-        onProfileTap: navigateProfile,
-      ),
+      drawer: SideBar(),
       bottomNavigationBar: BottomBar(),
       backgroundColor: Colors.white,
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.3646, 0.9062, 1.0],
-            colors: [
-              Colors.white,
-              Colors.white,
-              Color.fromRGBO(182, 255, 182, 0.5),
-            ],
-          ),
-        ),
+        color: Colors.white,
         child: StreamBuilder<QuerySnapshot>(
           stream: _streamDonationItems,
           builder: (BuildContext context, AsyncSnapshot snapshot) {

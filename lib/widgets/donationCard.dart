@@ -1,4 +1,4 @@
-import 'package:animal_lovers_app/components/shortButton.dart';
+import 'package:animal_lovers_app/widgets/shortButton.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';

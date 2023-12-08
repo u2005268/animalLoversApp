@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -9,8 +10,10 @@ class LongButton extends StatelessWidget {
     Key? key,
     required this.onTap,
     required this.buttonText,
-    this.buttonColor = const Color(0xFF1B4332),
-  }) : super(key: key);
+    Color? buttonColor, // Remove the default value here
+  })  : buttonColor = buttonColor ??
+            Styles.primaryColor, // Set the default value in the constructor
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {

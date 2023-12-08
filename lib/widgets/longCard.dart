@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,7 +25,7 @@ class LongCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
             margin: EdgeInsets.symmetric(horizontal: 25),
             decoration: BoxDecoration(
-              color: Color(0xFFE5EAEC),
+              color: Styles.lightGrey,
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(

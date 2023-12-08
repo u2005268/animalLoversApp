@@ -1,5 +1,8 @@
-import 'package:animal_lovers_app/components/longButton.dart';
-import 'package:animal_lovers_app/components/underlineTextfield.dart';
+import 'package:animal_lovers_app/utils/app_styles.dart';
+import 'package:animal_lovers_app/widgets/customAppbar.dart';
+import 'package:animal_lovers_app/widgets/longButton.dart';
+import 'package:animal_lovers_app/widgets/showStatusPopUp.dart';
+import 'package:animal_lovers_app/widgets/underlineTextfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -162,26 +165,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
         widget.onProfileUpdated(updatedBio, photoUrl);
 
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Update Successful'),
-              content: Text('Your profile has been updated successfully.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("OK", style: TextStyle(color: Colors.blue)),
-                ),
-              ],
-            );
-          },
-        );
+        showStatusPopup(context, true);
       }
     } catch (error) {
-      showErrorMessage('Failed to update profile data. Please try again.');
+      showStatusPopup(context, false);
     }
   }
 
@@ -247,15 +234,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
+      appBar: CustomAppBar(
+        titleText: "Edit Profile",
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Color(0xFFD7FFD7),
+              color: Styles.secondaryColor,
             ),
             child: IconButton(
               icon: Icon(
@@ -269,18 +255,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.3646, 0.9062, 1.0],
-            colors: [
-              Colors.white,
-              Colors.white,
-              Color.fromRGBO(182, 255, 182, 0.5),
-            ],
-          ),
-        ),
+        decoration: Styles.gradientBackground(),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.only(top: 20.0),
@@ -317,7 +292,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           height: 25,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Color(0xFFD7FFD7),
+                            color: Styles.secondaryColor,
                           ),
                           child: Align(
                             alignment: Alignment.center,
@@ -381,7 +356,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     children: [
                       Expanded(
                         child: LongButton(
-                          buttonColor: Color(0xFFF90909),
+                          buttonColor: Styles.red,
                           buttonText: "Reset Password",
                           onTap: passwordReset,
                         ),

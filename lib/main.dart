@@ -5,6 +5,7 @@ import 'package:animal_lovers_app/screens/register.dart';
 import 'package:flutter/material.dart';
 import 'package:animal_lovers_app/screens/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
 import 'firebase_options.dart';
 
 Future main() async {
@@ -12,7 +13,6 @@ Future main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   runApp(const MyApp());
 }
 

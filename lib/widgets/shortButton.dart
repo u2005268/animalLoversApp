@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:flutter/material.dart';
 
 class ShortButton extends StatefulWidget {
@@ -33,7 +34,7 @@ class _ShortButtonState extends State<ShortButton> {
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         // margin: EdgeInsets.symmetric(horizontal: 165),
         decoration: BoxDecoration(
-          color: widget.isTapped ? Color(0xFF1B4332) : Color(0xFFD2FFD2),
+          color: widget.isTapped ? Styles.primaryColor : Styles.secondaryColor,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
