@@ -1,11 +1,6 @@
-import 'package:animal_lovers_app/screens/animal_tracker.dart';
 import 'package:animal_lovers_app/screens/auth_page.dart';
-import 'package:animal_lovers_app/screens/login.dart';
-import 'package:animal_lovers_app/screens/register.dart';
 import 'package:flutter/material.dart';
-import 'package:animal_lovers_app/screens/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/services.dart';
 import 'firebase_options.dart';
 
 Future main() async {

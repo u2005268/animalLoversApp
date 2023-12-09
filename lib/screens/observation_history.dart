@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
 
 class ObservationHistoryPage extends StatefulWidget {
   const ObservationHistoryPage({Key? key}) : super(key: key);
@@ -30,6 +31,14 @@ class _ObservationHistoryPageState extends State<ObservationHistoryPage> {
     _streamObservationItems = _referenceObservationList
         .where('userId', isEqualTo: userId)
         .snapshots();
+  }
+
+  // Function to parse the date and time
+  DateTime parseDateAndTime(String dateAndTimeStr) {
+    // Define the date and time format
+    final DateFormat dateFormat = DateFormat("dd-MM-yyyy HH:mm:ss");
+    // Parse the string into a DateTime object
+    return dateFormat.parse(dateAndTimeStr);
   }
 
   @override
@@ -88,6 +97,14 @@ class _ObservationHistoryPageState extends State<ObservationHistoryPage> {
                                   'time': e['time'] ?? "",
                                 })
                             .toList();
+                        // Sort the items list based on date and time in descending order
+                        items.sort((a, b) {
+                          DateTime dateTimeA =
+                              parseDateAndTime(a['date'] + ' ' + a['time']);
+                          DateTime dateTimeB =
+                              parseDateAndTime(b['date'] + ' ' + b['time']);
+                          return dateTimeB.compareTo(dateTimeA);
+                        });
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Container(

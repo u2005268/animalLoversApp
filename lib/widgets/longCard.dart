@@ -12,7 +12,7 @@ class LongCard extends StatelessWidget {
   final String? imageUrl;
   final String? url;
   final VoidCallback? onEditPressed;
-
+  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
   const LongCard({
     Key? key,
     this.text1,
@@ -22,15 +22,6 @@ class LongCard extends StatelessWidget {
     this.url,
     this.onEditPressed,
   }) : super(key: key);
-
-// Helper function to capitalize the first letter of each word
-  String _capitalizeWords(String text) {
-    if (text.isEmpty) return text;
-    final words = text.split(' ');
-    final capitalizedWords =
-        words.map((word) => word[0].toUpperCase() + word.substring(1)).toList();
-    return capitalizedWords.join(' ');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +92,7 @@ class LongCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _capitalizeWords(text1!),
+                        capitalize(text1!),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

@@ -27,7 +27,6 @@ class ObservationPage extends StatefulWidget {
 }
 
 class _ObservationPageState extends State<ObservationPage> {
-  final _formKey = GlobalKey<FormState>(); // Create a GlobalKey for the form
   bool _isChecked = false;
   File? _imageFile;
   TextEditingController _whatDidYouSeeController = TextEditingController();
@@ -38,6 +37,8 @@ class _ObservationPageState extends State<ObservationPage> {
       TextEditingController();
   late DateTime selectedDate = DateTime.now();
   String? imageUrl;
+  late double latitude;
+  late double longitude;
   @override
   void initState() {
     super.initState();
@@ -84,8 +85,8 @@ class _ObservationPageState extends State<ObservationPage> {
 
     if (position != null) {
       // Get the latitude and longitude
-      double latitude = position.latitude;
-      double longitude = position.longitude;
+      latitude = position.latitude;
+      longitude = position.longitude;
 
       // Reverse geocode the coordinates to get the address
       List<Placemark> placemarks =
@@ -228,7 +229,6 @@ class _ObservationPageState extends State<ObservationPage> {
           child: Center(
             child: SingleChildScrollView(
               child: Form(
-                key: _formKey, // Assign the GlobalKey to the Form
                 autovalidateMode:
                     AutovalidateMode.always, // Automatically validate the form
                 child: Column(
@@ -395,10 +395,30 @@ class _ObservationPageState extends State<ObservationPage> {
                       ),
                     ),
                     Gap(10),
-                    LongButton(
-                      buttonText: "Submit",
-                      onTap: _handleSubmission,
-                    ),
+                    widget.observationId != null
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                child: LongButton(
+                                  buttonColor: Styles.red,
+                                  buttonText: "Delete",
+                                  onTap: _handleDelete,
+                                ),
+                              ),
+                              Expanded(
+                                child: LongButton(
+                                  buttonText: "Update",
+                                  onTap: _handleUpdate,
+                                ),
+                              ),
+                            ],
+                          )
+                        : LongButton(
+                            buttonText: "Submit",
+                            onTap: _handleSubmission,
+                          ),
+
                     Gap(30),
                   ],
                 ),
@@ -410,7 +430,7 @@ class _ObservationPageState extends State<ObservationPage> {
     );
   }
 
-  void _handleSubmission() async {
+  void _handleUpdate() async {
     // Get the current user
     User? user = FirebaseAuth.instance.currentUser;
 
@@ -419,9 +439,8 @@ class _ObservationPageState extends State<ObservationPage> {
     }
 
     // Get values from the text fields
-    String userId = user.uid; // User ID
     String whatDidYouSee = _whatDidYouSeeController.text;
-    String location = _locationController.text; // Location text field
+    String location = _locationController.text;
     String date = _dateController.text;
     String time = _timeController.text;
     String additionalInformation = _additionalInformationController.text;
@@ -458,6 +477,8 @@ class _ObservationPageState extends State<ObservationPage> {
             'date': date,
             'time': time,
             'additionalInformation': additionalInformation,
+            'latitude': latitude,
+            'longitude': longitude,
           });
 
           // Check if a new image has been selected
@@ -471,7 +492,7 @@ class _ObservationPageState extends State<ObservationPage> {
 
             // Update the observation document with the new image URL
             await observations.doc(widget.observationId).update({
-              'imageUrl': imageUrl, // Store the new image URL
+              'imageUrl': imageUrl,
             });
 
             // Delete the previous image from Firebase Storage
@@ -491,8 +512,123 @@ class _ObservationPageState extends State<ObservationPage> {
           );
         });
       }
+    } catch (e) {
+      showStatusPopup(context, false);
+    }
+  }
+
+  void _handleDelete() async {
+    try {
+      if (widget.observationId != null) {
+        // Show a confirmation dialog
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("Delete"),
+              content:
+                  Text("Are you sure you want to delete this observation?"),
+              actions: [
+                MaterialButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the dialog
+                  },
+                  child: Text(
+                    "No",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+                MaterialButton(
+                  onPressed: () async {
+                    Navigator.pop(context); // Close the dialog
+
+                    // Get a reference to the Firestore collection
+                    CollectionReference observations =
+                        FirebaseFirestore.instance.collection('observations');
+
+                    // Retrieve the observation document
+                    final observationDoc =
+                        await observations.doc(widget.observationId).get();
+
+                    if (observationDoc.exists) {
+                      // Get the imageUrl from the observation document
+                      final imageUrl = (observationDoc.data()
+                          as Map<String, dynamic>)['imageUrl'];
+
+                      // Delete the observation document
+                      await observations.doc(widget.observationId).delete();
+
+                      // Delete the associated image from Firebase Storage if it exists
+                      if (imageUrl != null) {
+                        final storageRef =
+                            FirebaseStorage.instance.refFromURL(imageUrl);
+                        await storageRef.delete();
+                      }
+
+                      // Show a success message
+                      showStatusPopup(context, true);
+
+                      // Navigate to a different page after a delay
+                      Future.delayed(Duration(seconds: 3), () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ObservationHistoryPage()),
+                        );
+                      });
+                    }
+                  },
+                  child: Text(
+                    "Yes",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      // Handle any errors that occur during deletion
+      showStatusPopup(context, false);
+      print('Error deleting observation: $e');
+    }
+  }
+
+  void _handleSubmission() async {
+    // Get the current user
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return;
+    }
+
+    // Get values from the text fields
+    String userId = user.uid;
+    String whatDidYouSee = _whatDidYouSeeController.text;
+    String location = _locationController.text;
+    String date = _dateController.text;
+    String time = _timeController.text;
+    String additionalInformation = _additionalInformationController.text;
+
+    // Create a reference to the Firestore collection
+    CollectionReference observations =
+        FirebaseFirestore.instance.collection('observations');
+
+    if (!_isChecked) {
+      // Show a warning message if the checkbox is not checked
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text("Please agree with the data provided before submitting."),
+        ),
+      );
+      return;
+    }
+
+    try {
       // Upload a new observation with an image
-      else if (_imageFile != null) {
+      if (_imageFile != null) {
         Reference storageReference = FirebaseStorage.instance
             .ref()
             .child('observation_images/${DateTime.now()}.png');
@@ -501,19 +637,29 @@ class _ObservationPageState extends State<ObservationPage> {
 
         // Add a new document to the "observations" collection with image URL
         await observations.add({
-          'userId': userId, // User ID
+          'userId': userId,
           'whatDidYouSee': whatDidYouSee,
           'location': location,
           'date': date,
           'time': time,
           'additionalInformation': additionalInformation,
-          'imageUrl': imageUrl, // Store the image URL
+          'imageUrl': imageUrl,
+          'latitude': latitude,
+          'longitude': longitude,
         });
 
         showStatusPopup(context, true);
 
         // Clear the text fields and image file after a successful submission
         _resetForm();
+
+        // Show success popup with a delay
+        Future.delayed(Duration(seconds: 1), () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ObservationHistoryPage()),
+          );
+        });
       } else {
         showStatusPopup(context, false);
       }

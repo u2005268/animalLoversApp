@@ -38,7 +38,7 @@ class LongButton extends StatelessWidget {
             child: Text(
           buttonText,
           style: const TextStyle(
-              color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
         )),
       ),
     );
