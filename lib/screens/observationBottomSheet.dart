@@ -10,14 +10,14 @@ class Place with ClusterItem {
   final String name;
   final LatLng latLng;
   final Map<String, dynamic> observationDetails;
-  final DocumentReference observationReference;
+  final String observationId;
   bool isStarred;
 
   Place({
     required this.name,
     required this.latLng,
     required this.observationDetails,
-    required this.observationReference,
+    required this.observationId,
     required this.isStarred,
   });
 
@@ -200,16 +200,16 @@ class _ObservationDetailsBottomSheetState
 
     try {
       if (isStarred) {
-        // Remove the observation reference from the list
+        // Remove the observation ID from the list
         await userRef.update({
           'favouriteObservationList':
-              FieldValue.arrayRemove([observation.observationReference])
+              FieldValue.arrayRemove([observation.observationId])
         });
       } else {
-        // Add the observation reference to the list
+        // Add the observation ID to the list
         await userRef.update({
           'favouriteObservationList':
-              FieldValue.arrayUnion([observation.observationReference])
+              FieldValue.arrayUnion([observation.observationId])
         });
       }
 
@@ -258,7 +258,7 @@ class _ObservationDetailsBottomSheetState
       final data = userSnapshot.data() as Map<String, dynamic>;
       List<dynamic> favouriteList = data['favouriteObservationList'] ?? [];
 
-      return favouriteList.contains(observation.observationReference);
+      return favouriteList.contains(observation.observationId);
     } else {
       // User document doesn't exist, return false
       return false;

@@ -115,6 +115,7 @@ class DonationCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: ShortButton(
+                        width: 90,
                         onTap: () {
                           _launchURL(url);
                         },

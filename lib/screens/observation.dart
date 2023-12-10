@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:animal_lovers_app/screens/animal_tracker.dart';
 import 'package:animal_lovers_app/screens/googleMapBottomSheet.dart';
 import 'package:animal_lovers_app/screens/observation_history.dart';
@@ -226,6 +228,27 @@ class _ObservationPageState extends State<ObservationPage> {
         );
       },
     );
+  }
+
+  Future<Map<String, dynamic>> decodeLocation(
+      String location, String apiKey) async {
+    final Uri uri = Uri.https(
+      'maps.googleapis.com',
+      '/maps/api/geocode/json',
+      <String, String>{
+        'address': location,
+        'key': apiKey,
+      },
+    );
+
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      return data;
+    } else {
+      throw Exception('Failed to decode location');
+    }
   }
 
   @override
@@ -467,11 +490,26 @@ class _ObservationPageState extends State<ObservationPage> {
     }
 
     // Get values from the text fields
+    // Get values from the text fields
+    String userId = user.uid;
     String whatDidYouSee = _whatDidYouSeeController.text;
     String location = _locationController.text;
     String date = _dateController.text;
     String time = _timeController.text;
     String additionalInformation = _additionalInformationController.text;
+    final decodedData = await decodeLocation(
+        location, 'AIzaSyCYahXl1H1pX_EU3XHDZwNr1p5Gef4PERI');
+    double? latitude;
+    double? longitude;
+    final results = decodedData['results'];
+
+    if (results.isNotEmpty) {
+      final location = results[0]['geometry']['location'];
+      latitude = location['lat'];
+      longitude = location['lng'];
+    } else {
+      print('Location not found');
+    }
 
     // Create a reference to the Firestore collection
     CollectionReference observations =
@@ -500,6 +538,7 @@ class _ObservationPageState extends State<ObservationPage> {
 
           // Update an existing observation based on observationId
           await observations.doc(widget.observationId).update({
+            'userId': userId,
             'whatDidYouSee': whatDidYouSee,
             'location': location,
             'date': date,
@@ -541,6 +580,7 @@ class _ObservationPageState extends State<ObservationPage> {
         });
       }
     } catch (e) {
+      print('Error updating observation: $e');
       showStatusPopup(context, false);
     }
   }

@@ -1,6 +1,7 @@
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customAppbar.dart';
 import 'package:animal_lovers_app/widgets/bottomBar.dart';
+import 'package:animal_lovers_app/widgets/favouriteCard.dart';
 import 'package:animal_lovers_app/widgets/shortButton.dart';
 import 'package:animal_lovers_app/screens/edit_profile.dart';
 import 'package:animal_lovers_app/widgets/sideBar.dart';
@@ -22,6 +23,13 @@ class _ProfilePageState extends State<ProfilePage> {
   String? bio;
   String? photoUrl;
   final currentUser = FirebaseAuth.instance.currentUser!;
+  int selectedIndex = 0;
+  List<Observation> observationFavoritesDetails = [];
+  List<News> newsFavoritesDetails = [];
+  // Lists to store favorite items for each category
+  List<String> speciesFavorites = [];
+  List<String> observationFavorites = [];
+  List<String> newsFavorites = [];
 
   @override
   void initState() {
@@ -92,6 +100,106 @@ class _ProfilePageState extends State<ProfilePage> {
       bio = updatedBio;
       photoUrl = updatedPhotoUrl;
     });
+  }
+
+  Future<void> fetchFavoriteItems(int index) async {
+    try {
+      final userId = currentUser.uid;
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (snapshot.exists) {
+        final userData = snapshot.data();
+        setState(() {
+          speciesFavorites =
+              List<String>.from(userData?['speciesFavorites'] ?? []);
+          observationFavorites =
+              List<String>.from(userData?['favouriteObservationList'] ?? []);
+          newsFavorites =
+              List<String>.from(userData?['favouriteNewsList'] ?? []);
+          selectedIndex = index;
+        });
+      }
+
+      if (selectedIndex == 1) {
+        // Fetch observation details for the observation favorites
+        final observationDetails =
+            await fetchObservationDetails(observationFavorites);
+
+        setState(() {
+          observationFavoritesDetails = observationDetails;
+        });
+      } else if (selectedIndex == 2) {
+        // Fetch news details for the news favorites
+        final newsDetails = await fetchNewsDetails(newsFavorites);
+
+        setState(() {
+          newsFavoritesDetails = newsDetails;
+        });
+      }
+    } catch (error) {
+      print('Error fetching favorite items: $error');
+    }
+  }
+
+  Future<List<Observation>> fetchObservationDetails(
+      List<String> observationIds) async {
+    final observationDetails = <Observation>[];
+
+    try {
+      for (final observationId in observationIds) {
+        final observationDoc = await FirebaseFirestore.instance
+            .collection('observations')
+            .doc(observationId)
+            .get();
+
+        if (observationDoc.exists) {
+          final observationData = observationDoc.data() as Map<String, dynamic>;
+          final observation = Observation(
+            id: observationId,
+            imageUrl: observationData['imageUrl'] ?? '',
+            whatDidYouSee:
+                observationData['whatDidYouSee'] ?? '', // Corrected field name
+          );
+
+          observationDetails.add(observation);
+        }
+      }
+    } catch (error) {
+      print('Error fetching observation details: $error');
+    }
+
+    return observationDetails;
+  }
+
+  Future<List<News>> fetchNewsDetails(List<String> newsIds) async {
+    final newsDetails = <News>[];
+
+    try {
+      for (final newsId in newsIds) {
+        final newsDoc = await FirebaseFirestore.instance
+            .collection('news')
+            .doc(newsId)
+            .get();
+
+        if (newsDoc.exists) {
+          final newsData = newsDoc.data() as Map<String, dynamic>;
+          final news = News(
+            id: newsId,
+            imageUrl: newsData['imageUrl'] ?? '',
+            title: newsData['title'] ?? '', // Corrected field name
+          );
+
+          newsDetails.add(news);
+        }
+      }
+    } catch (error) {
+      print('Error fetching news details: $error');
+    }
+
+    return newsDetails;
   }
 
   @override
@@ -173,37 +281,44 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   Gap(10),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 35.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 90,
-                          child: ShortButton(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ShortButton(
                             buttonText: "Species",
-                            isTapped: false,
-                            onTap: () {},
+                            isTapped: selectedIndex == 0,
+                            width: 90,
+                            onTap: () {
+                              fetchFavoriteItems(0);
+                            },
                           ),
-                        ),
-                        Gap(20),
-                        Container(
-                          width: 90,
-                          child: ShortButton(
+                          Gap(30),
+                          ShortButton(
                             buttonText: "Observation",
-                            isTapped: false,
-                            onTap: () {},
+                            isTapped: selectedIndex == 1,
+                            width: 90,
+                            onTap: () {
+                              fetchFavoriteItems(1);
+                            },
                           ),
-                        ),
-                        Gap(20),
-                        Container(
-                          width: 90,
-                          child: ShortButton(
+                          Gap(30),
+                          ShortButton(
                             buttonText: "News",
-                            isTapped: true,
-                            onTap: () {},
+                            isTapped: selectedIndex == 2,
+                            width: 90,
+                            onTap: () {
+                              fetchFavoriteItems(2);
+                            },
                           ),
-                        ),
-                      ],
+                        ]),
+                  ),
+                  Gap(20), // Add some spacing
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: buildFavoriteCards(),
+                      ),
                     ),
                   ),
                 ],
@@ -214,4 +329,69 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
+
+  List<Widget> buildFavoriteCards() {
+    List<FavoriteItem> favoriteItems = [];
+
+    // Determine which favorite list to use based on the selected button
+    if (selectedIndex == 0) {
+      favoriteItems = speciesFavorites
+          .map((favorite) => FavoriteItem(title: favorite, imageUrl: ''))
+          .toList();
+    } else if (selectedIndex == 1) {
+      favoriteItems = observationFavoritesDetails
+          .map((observation) => FavoriteItem(
+              title: observation.whatDidYouSee, imageUrl: observation.imageUrl))
+          .toList();
+    } else if (selectedIndex == 2) {
+      favoriteItems = newsFavoritesDetails
+          .map((news) =>
+              FavoriteItem(title: news.title, imageUrl: news.imageUrl))
+          .toList();
+    }
+
+    // Create a list of cards based on the selected favorite list
+    List<Widget> cards = favoriteItems.map((favorite) {
+      return FavoriteCard(
+        title: favorite.title,
+        imageUrl: favorite.imageUrl,
+      );
+    }).toList();
+
+    return cards;
+  }
+}
+
+class FavoriteItem {
+  final String title;
+  final String imageUrl;
+
+  FavoriteItem({
+    required this.title,
+    required this.imageUrl,
+  });
+}
+
+class Observation {
+  final String id;
+  final String imageUrl;
+  final String whatDidYouSee;
+
+  Observation({
+    required this.id,
+    required this.imageUrl,
+    required this.whatDidYouSee,
+  });
+}
+
+class News {
+  final String id;
+  final String imageUrl;
+  final String title;
+
+  News({
+    required this.id,
+    required this.imageUrl,
+    required this.title,
+  });
 }

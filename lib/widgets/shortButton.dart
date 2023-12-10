@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 class ShortButton extends StatefulWidget {
   final Function()? onTap;
   final String buttonText;
+  final double width;
   bool isTapped = false;
-  ShortButton(
-      {Key? key,
-      required this.onTap,
-      required this.buttonText,
-      required this.isTapped})
-      : super(key: key);
+
+  ShortButton({
+    Key? key,
+    required this.onTap,
+    required this.buttonText,
+    required this.isTapped,
+    required this.width,
+  }) : super(key: key);
 
   @override
   _ShortButtonState createState() => _ShortButtonState();
@@ -31,8 +34,8 @@ class _ShortButtonState extends State<ShortButton> {
         }
       },
       child: Container(
+        width: widget.width, // Set the width here
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        // margin: EdgeInsets.symmetric(horizontal: 165),
         decoration: BoxDecoration(
           color: widget.isTapped ? Styles.primaryColor : Styles.secondaryColor,
           borderRadius: BorderRadius.circular(8),

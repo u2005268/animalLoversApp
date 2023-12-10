@@ -148,7 +148,7 @@ class _AnimalTrackerState extends State<AnimalTracker> {
           name: data['placeName'] ?? '',
           latLng: location,
           observationDetails: data,
-          observationReference: doc.reference,
+          observationId: doc.id,
           isStarred: false,
         ),
       );
