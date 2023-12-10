@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/screens/animal_tracker.dart';
 import 'package:animal_lovers_app/screens/observation_history.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customAppbar.dart';
@@ -657,7 +658,7 @@ class _ObservationPageState extends State<ObservationPage> {
         Future.delayed(Duration(seconds: 1), () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ObservationHistoryPage()),
+            MaterialPageRoute(builder: (context) => AnimalTracker()),
           );
         });
       } else {

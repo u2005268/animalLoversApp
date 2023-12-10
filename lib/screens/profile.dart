@@ -168,7 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   Gap(40),
                   Text(
-                    "My Favorites",
+                    "My Favourites",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                   ),
                   Gap(10),
