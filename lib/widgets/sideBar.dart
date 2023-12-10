@@ -1,5 +1,6 @@
 import 'package:animal_lovers_app/screens/donate.dart';
 import 'package:animal_lovers_app/screens/info.dart';
+import 'package:animal_lovers_app/screens/news.dart';
 import 'package:animal_lovers_app/screens/observation_history.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
 import 'package:animal_lovers_app/widgets/sidebarListtile.dart';
@@ -80,7 +81,13 @@ class SideBar extends StatelessWidget {
             SidebarListtile(
               icon: Icons.newspaper_outlined,
               text: "News",
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context); // Close the sidebar
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => NewsPage()),
+                );
+              },
             ),
             SidebarListtile(
               icon: Icons.monetization_on_outlined,

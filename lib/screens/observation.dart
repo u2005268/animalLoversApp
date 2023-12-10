@@ -1,4 +1,5 @@
 import 'package:animal_lovers_app/screens/animal_tracker.dart';
+import 'package:animal_lovers_app/screens/googleMapBottomSheet.dart';
 import 'package:animal_lovers_app/screens/observation_history.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customAppbar.dart';
@@ -21,7 +22,14 @@ import 'package:intl/intl.dart';
 
 class ObservationPage extends StatefulWidget {
   final String? observationId;
-  const ObservationPage({Key? key, this.observationId}) : super(key: key);
+  final String? locationText;
+  final ValueChanged<String>? onLocationSelected;
+  const ObservationPage(
+      {Key? key,
+      this.observationId,
+      this.locationText,
+      this.onLocationSelected})
+      : super(key: key);
 
   @override
   State<ObservationPage> createState() => _ObservationPageState();
@@ -45,7 +53,7 @@ class _ObservationPageState extends State<ObservationPage> {
     super.initState();
     selectedDate = DateTime.now();
     getCurrentDateTime(); // Set initial date and time
-    _getCurrentLocation();
+    // _getCurrentLocation();
     loadObservationData();
   }
 
@@ -201,6 +209,25 @@ class _ObservationPageState extends State<ObservationPage> {
     }
   }
 
+  void _showGoogleMapBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return GoogleMapBottomSheet(
+          onLocationSelected: (locationText, GMaplatitude, GMaplongitude) {
+            // Handle location data received from the bottom sheet
+            setState(() {
+              _locationController.text = locationText;
+              latitude = GMaplatitude; // Update latitude
+              longitude = GMaplongitude; // Update longitude
+            });
+            Navigator.pop(context); // Close the bottom sheet
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -261,7 +288,7 @@ class _ObservationPageState extends State<ObservationPage> {
                       suffixIcon: IconButton(
                         icon: Icon(Icons.location_on_outlined),
                         onPressed: () {
-                          _getCurrentLocation(); // Update location when tapped
+                          _showGoogleMapBottomSheet(context);
                         },
                       ),
                     ),
