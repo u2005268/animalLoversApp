@@ -1,20 +1,17 @@
+import 'package:animal_lovers_app/screens/news.dart';
 import 'package:animal_lovers_app/screens/news_info.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 class NewsCard extends StatelessWidget {
-  final String imageUrl;
-  final String title;
-  final String description;
-  final String timestamp;
+  final NewsItem newsItem;
+  final Function() onStarToggle;
 
   const NewsCard({
     Key? key,
-    required this.imageUrl,
-    required this.title,
-    required this.description,
-    required this.timestamp,
+    required this.newsItem,
+    required this.onStarToggle,
   }) : super(key: key);
 
   @override
@@ -40,9 +37,9 @@ class NewsCard extends StatelessWidget {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => NewsInfoPage(
-                  imageUrl: imageUrl,
-                  title: title,
-                  description: description,
+                  imageUrl: newsItem.imageUrl,
+                  title: newsItem.title,
+                  description: newsItem.description,
                 ),
               ),
             );
@@ -57,7 +54,7 @@ class NewsCard extends StatelessWidget {
                 Container(
                   height: 150,
                   child: Image.network(
-                    imageUrl,
+                    newsItem.imageUrl,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -67,7 +64,7 @@ class NewsCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        title,
+                        newsItem.title,
                         style: TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.bold,
@@ -75,7 +72,7 @@ class NewsCard extends StatelessWidget {
                       ),
                       Gap(8),
                       Text(
-                        description,
+                        newsItem.description,
                         style: TextStyle(
                           fontSize: 14.0,
                         ),
@@ -90,7 +87,7 @@ class NewsCard extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(timestamp),
+                                Text(newsItem.timestamp),
                               ],
                             ),
                             Column(
@@ -98,10 +95,14 @@ class NewsCard extends StatelessWidget {
                               children: [
                                 IconButton(
                                   icon: Icon(
-                                    Icons.star_border,
+                                    newsItem.isStarred
+                                        ? Icons.star
+                                        : Icons.star_border,
                                     color: Styles.primaryColor,
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    onStarToggle();
+                                  },
                                 ),
                               ],
                             ),
