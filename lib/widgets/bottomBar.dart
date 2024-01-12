@@ -1,5 +1,6 @@
 import 'package:animal_lovers_app/screens/animal_tracker.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
+import 'package:animal_lovers_app/screens/species.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +16,8 @@ class _BottomBarState extends State<BottomBar> {
   int _selectedIndex = 0;
   static final List<Widget> _widgetOptions = <Widget>[
     AnimalTracker(),
-    // const Text("Identify"),
     ProfilePage(),
-    const Text("Species"),
-    const Text("Community")
+    SpeciesPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -34,6 +33,11 @@ class _BottomBarState extends State<BottomBar> {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => ProfilePage()),
+        );
+      } else if (index == 2) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SpeciesPage()),
         );
       }
     });
