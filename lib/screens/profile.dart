@@ -30,6 +30,7 @@ class _ProfilePageState extends State<ProfilePage> {
   List<String> speciesFavorites = [];
   List<String> observationFavorites = [];
   List<String> newsFavorites = [];
+  late bool isFavorite;
 
   @override
   void initState() {
@@ -127,14 +128,12 @@ class _ProfilePageState extends State<ProfilePage> {
         // Fetch observation details for the observation favorites
         final observationDetails =
             await fetchObservationDetails(observationFavorites);
-
         setState(() {
           observationFavoritesDetails = observationDetails;
         });
       } else if (selectedIndex == 2) {
         // Fetch news details for the news favorites
         final newsDetails = await fetchNewsDetails(newsFavorites);
-
         setState(() {
           newsFavoritesDetails = newsDetails;
         });
@@ -200,6 +199,45 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return newsDetails;
+  }
+
+  void toggleFavoriteStatus(String itemId, bool isFavorite) async {
+    try {
+      final userId = currentUser.uid;
+      final userRef =
+          FirebaseFirestore.instance.collection('users').doc(userId);
+
+      // Toggle observation or news favorite status
+      if (isFavorite) {
+        await userRef.update({
+          selectedIndex == 1 ? 'favouriteObservationList' : 'favouriteNewsList':
+              FieldValue.arrayUnion([itemId])
+        });
+        isFavorite = !isFavorite;
+      } else {
+        await userRef.update({
+          selectedIndex == 1 ? 'favouriteObservationList' : 'favouriteNewsList':
+              FieldValue.arrayRemove([itemId])
+        });
+        isFavorite = !isFavorite;
+      }
+
+      // Show a snackbar indicating whether the item was added or removed from favorites
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              isFavorite ? "Removed from Favourites" : "Added to Favourites"),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      // Fetch the latest data and update the UI again
+      setState(() {
+        fetchFavoriteItems(selectedIndex);
+      });
+    } catch (error) {
+      print('Error toggling favorite status: $error');
+    }
   }
 
   @override
@@ -334,20 +372,43 @@ class _ProfilePageState extends State<ProfilePage> {
     List<FavoriteItem> favoriteItems = [];
 
     // Determine which favorite list to use based on the selected button
-    if (selectedIndex == 0) {
-      favoriteItems = speciesFavorites
-          .map((favorite) => FavoriteItem(title: favorite, imageUrl: ''))
-          .toList();
-    } else if (selectedIndex == 1) {
+    if (selectedIndex == 1) {
       favoriteItems = observationFavoritesDetails
           .map((observation) => FavoriteItem(
-              title: observation.whatDidYouSee, imageUrl: observation.imageUrl))
+                itemId: observation.id,
+                itemType: 'observation',
+                title: observation.whatDidYouSee,
+                imageUrl: observation.imageUrl,
+                isFavorite: observationFavorites.contains(observation.id),
+                onToggleFavorite: (isFavorite) {
+                  toggleFavoriteStatus(observation.id, isFavorite);
+                },
+              ))
           .toList();
     } else if (selectedIndex == 2) {
       favoriteItems = newsFavoritesDetails
-          .map((news) =>
-              FavoriteItem(title: news.title, imageUrl: news.imageUrl))
+          .map((news) => FavoriteItem(
+                itemId: news.id,
+                itemType: 'news',
+                title: news.title,
+                imageUrl: news.imageUrl,
+                isFavorite: newsFavorites.contains(news.id),
+                onToggleFavorite: (isFavorite) {
+                  toggleFavoriteStatus(news.id, isFavorite);
+                },
+              ))
           .toList();
+    }
+
+    // Check if the newsDetails list is empty
+    if ((selectedIndex == 1 && observationFavoritesDetails.isEmpty) ||
+        (selectedIndex == 2 && newsFavoritesDetails.isEmpty)) {
+      return [
+        const Text(
+          'No Record Found!',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        ),
+      ];
     }
 
     // Create a list of cards based on the selected favorite list
@@ -355,6 +416,17 @@ class _ProfilePageState extends State<ProfilePage> {
       return FavoriteCard(
         title: favorite.title,
         imageUrl: favorite.imageUrl,
+        isFavorite: favorite.isFavorite,
+        itemId: favorite.itemId, // Pass itemId
+        itemType: favorite.itemType, // Pass itemType
+        onToggleFavorite: (isFavorite) {
+          // Update the state using setState
+          setState(() {
+            favorite.isFavorite = isFavorite;
+          });
+          // Call the actual callback
+          favorite.onToggleFavorite(isFavorite);
+        },
       );
     }).toList();
 
@@ -365,22 +437,37 @@ class _ProfilePageState extends State<ProfilePage> {
 class FavoriteItem {
   final String title;
   final String imageUrl;
+  final String itemId;
+  final String itemType;
+  bool isFavorite;
+  final Function(bool) onToggleFavorite;
 
   FavoriteItem({
     required this.title,
     required this.imageUrl,
+    required this.itemId,
+    required this.itemType,
+    this.isFavorite = true,
+    required this.onToggleFavorite,
   });
+
+  void toggleFavorite() {
+    isFavorite = !isFavorite;
+    onToggleFavorite(isFavorite);
+  }
 }
 
 class Observation {
   final String id;
   final String imageUrl;
   final String whatDidYouSee;
+  String itemType;
 
   Observation({
     required this.id,
     required this.imageUrl,
     required this.whatDidYouSee,
+    this.itemType = "observation",
   });
 }
 
@@ -388,10 +475,11 @@ class News {
   final String id;
   final String imageUrl;
   final String title;
-
+  String itemType;
   News({
     required this.id,
     required this.imageUrl,
     required this.title,
+    this.itemType = "news",
   });
 }

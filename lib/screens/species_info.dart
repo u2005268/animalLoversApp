@@ -8,8 +8,10 @@ class SpeciesInfoPage extends StatelessWidget {
   final Map<String, String> speciesData;
   final VoidCallback toggleFavoriteStatus;
 
-  SpeciesInfoPage(
-      {required this.speciesData, required this.toggleFavoriteStatus});
+  SpeciesInfoPage({
+    required this.speciesData,
+    required this.toggleFavoriteStatus,
+  });
 
   @override
   Widget build(BuildContext context) {

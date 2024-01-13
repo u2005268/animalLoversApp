@@ -62,7 +62,7 @@ class _BottomBarState extends State<BottomBar> {
         elevation: 0,
         showSelectedLabels: false,
         showUnselectedLabels: false,
-        selectedItemColor: Styles.primaryColor.withOpacity(0.7),
+        selectedItemColor: Styles.primaryColor,
         type: BottomNavigationBarType.fixed,
         unselectedItemColor: Styles.primaryColor,
         backgroundColor: Colors.transparent,

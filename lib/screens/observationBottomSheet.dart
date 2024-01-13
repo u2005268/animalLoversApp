@@ -49,6 +49,7 @@ class _ObservationDetailsBottomSheetState
   @override
   void initState() {
     super.initState();
+    _updateStarStatus();
   }
 
   @override
@@ -189,6 +190,16 @@ class _ObservationDetailsBottomSheetState
     );
   }
 
+  Future<void> _updateStarStatus() async {
+    bool isStarred =
+        await _isObservationStarred(widget.currentUserId, widget.observation);
+
+    // Update the UI to reflect the star status
+    setState(() {
+      widget.observation.isStarred = isStarred;
+    });
+  }
+
   Future<void> _toggleObservationStar(
       String currentUserId, Place observation, BuildContext context) async {
     // Check if the observation is already in the user's favouriteObservationList
@@ -213,7 +224,7 @@ class _ObservationDetailsBottomSheetState
         });
       }
 
-      // Update the UI to reflect the new star status
+      // Use setState to rebuild the bottom sheet and update the UI
       setState(() {
         observation.isStarred = !isStarred; // Toggle the local star status
       });

@@ -26,7 +26,8 @@ class _SpeciesPageState extends State<SpeciesPage> {
   final _animalnameController = TextEditingController();
   bool noResults = false;
   Set<String> favoriteSpecies = Set<String>();
-
+  late String name;
+  late bool isFavorite;
   // Timer variable for debouncing
   Timer? _debounceTimer;
 
@@ -49,9 +50,16 @@ class _SpeciesPageState extends State<SpeciesPage> {
         .get();
 
     if (userSnapshot.exists) {
-      setState(() {
-        favoriteSpecies = Set.from(userSnapshot['favoriteSpeciesList'] ?? []);
-      });
+      final favoriteSpeciesList =
+          userSnapshot['favouriteSpeciesList'] as List<dynamic>?;
+
+      if (favoriteSpeciesList != null) {
+        setState(() {
+          favoriteSpecies = Set<String>.from(
+            favoriteSpeciesList.map((item) => item['commonName'] as String),
+          );
+        });
+      }
     }
   }
 
@@ -61,52 +69,55 @@ class _SpeciesPageState extends State<SpeciesPage> {
       return;
     }
 
+    String animalname = name ?? '';
+    String commonName = animal['commonName'] ?? '';
+
+    // Create a map representing the name and common name
+    Map<String, String> favoriteItem = {
+      'name': animalname,
+      'commonName': commonName,
+    };
+
     DocumentReference userRef =
         FirebaseFirestore.instance.collection('users').doc(currentUserId);
 
-    if (favoriteSpecies.contains(animal['commonName'])) {
+    // Check if the favorite item already exists in the list
+    bool isFavorite = favoriteSpecies.contains(animal['commonName']);
+
+    if (isFavorite) {
+      // Remove the favorite item from the list using FieldValue.arrayRemove
       await userRef.update({
-        'favoriteSpeciesList': FieldValue.arrayRemove([animal['commonName']])
+        'favouriteSpeciesList': FieldValue.arrayRemove([favoriteItem]),
       });
     } else {
+      // Add the favorite item to the list using FieldValue.arrayUnion
       await userRef.update({
-        'favoriteSpeciesList': FieldValue.arrayUnion([animal['commonName']])
+        'favouriteSpeciesList': FieldValue.arrayUnion([favoriteItem]),
       });
     }
 
     setState(() {
-      if (favoriteSpecies.contains(animal['commonName'])) {
+      // Update the local state to reflect the changes
+      if (isFavorite) {
         favoriteSpecies.remove(animal['commonName']);
       } else {
         favoriteSpecies.add(animal['commonName']!);
       }
     });
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SpeciesInfoPage(
-          speciesData: animal,
-          toggleFavoriteStatus: () => toggleFavoriteStatus(animal),
-        ),
-      ),
-    );
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          favoriteSpecies.contains(animal['commonName'])
-              ? "Added to Favorites"
-              : "Removed from Favorites",
+          isFavorite ? "Removed from Favorites" : "Added to Favorites",
         ),
         duration: Duration(seconds: 2),
       ),
     );
   }
 
-  Future<void> fetchData() async {
+  void fetchData() async {
     const apiKey = 'BRV2D7EBW3C9h5vN2hWbnA==uEFFV3i0ZlYaFHgW';
-    final name = _animalnameController.text.isNotEmpty == true
+    name = _animalnameController.text.isNotEmpty == true
         ? _animalnameController.text.trim()
         : '';
 
@@ -231,6 +242,8 @@ class _SpeciesPageState extends State<SpeciesPage> {
                     itemCount: animals.length,
                     itemBuilder: (context, index) {
                       final animal = animals[index];
+                      final isAnimalFavorite =
+                          favoriteSpecies.contains(animal['commonName']);
                       return GestureDetector(
                         onTap: () {
                           // Navigate to SpeciesInfoPage and pass the species data
@@ -238,11 +251,9 @@ class _SpeciesPageState extends State<SpeciesPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => SpeciesInfoPage(
-                                speciesData:
-                                    animal, // Pass the species data here
-                                toggleFavoriteStatus: () =>
-                                    toggleFavoriteStatus(animal),
-                              ),
+                                  speciesData: animal,
+                                  toggleFavoriteStatus: () =>
+                                      toggleFavoriteStatus(animal)),
                             ),
                           );
                         },
@@ -256,13 +267,12 @@ class _SpeciesPageState extends State<SpeciesPage> {
                                     )),
                             trailing: IconButton(
                               icon: Icon(
-                                favoriteSpecies.contains(animal['commonName'])
+                                isAnimalFavorite
                                     ? Icons.star
                                     : Icons.star_border,
                                 color: Styles.primaryColor,
                               ),
                               onPressed: () {
-                                // Toggle favorite status
                                 toggleFavoriteStatus(animal);
                               },
                             ),
