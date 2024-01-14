@@ -71,11 +71,13 @@ class _SpeciesPageState extends State<SpeciesPage> {
 
     String animalname = name ?? '';
     String commonName = animal['commonName'] ?? '';
+    String scientificName = animal['scientificName'] ?? '';
 
     // Create a map representing the name and common name
     Map<String, String> favoriteItem = {
       'name': animalname,
       'commonName': commonName,
+      'scientificName': scientificName,
     };
 
     DocumentReference userRef =

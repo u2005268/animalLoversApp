@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:animal_lovers_app/screens/species_info.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customAppbar.dart';
 import 'package:animal_lovers_app/widgets/bottomBar.dart';
@@ -27,15 +30,100 @@ class _ProfilePageState extends State<ProfilePage> {
   List<Observation> observationFavoritesDetails = [];
   List<News> newsFavoritesDetails = [];
   // Lists to store favorite items for each category
-  List<String> speciesFavorites = [];
+  List<Map<String, String>> speciesFavorites = [];
+  List<Map<String, String>> updatedSpeciesFavorites = [];
   List<String> observationFavorites = [];
   List<String> newsFavorites = [];
   late bool isFavorite;
+  late String name;
 
   @override
   void initState() {
     super.initState();
     fetchUserData();
+    if (selectedIndex == 0) {
+      // Fetch species favorites only if the selected index is 0
+      fetchSpeciesFavorites();
+    }
+  }
+
+  void fetchSpeciesFavorites() async {
+    try {
+      String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
+      if (currentUserId.isEmpty) {
+        return;
+      }
+
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .get();
+
+      if (userSnapshot.exists) {
+        final speciesFavoritesList =
+            userSnapshot['favouriteSpeciesList'] as List<dynamic>?;
+
+        if (speciesFavoritesList != null) {
+          updatedSpeciesFavorites = List<Map<String, String>>.from(
+              speciesFavoritesList.map((item) => {
+                    'commonName': item['commonName']?.toString() ?? '',
+                    'name': item['name']?.toString() ?? '',
+                    'scientificName': item['scientificName']?.toString() ?? '',
+                  }));
+
+          setState(() {
+            speciesFavorites = updatedSpeciesFavorites;
+          });
+        }
+      }
+    } catch (error) {
+      print('Error fetching species favorites: $error');
+    }
+  }
+
+  Future<Map<String, String>> fetchSpeciesDetails(String speciesName) async {
+    const apiKey = 'BRV2D7EBW3C9h5vN2hWbnA==uEFFV3i0ZlYaFHgW';
+    final apiUrl = 'https://api.api-ninjas.com/v1/animals?name=$speciesName';
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl), headers: {
+        'X-Api-Key': apiKey,
+      });
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        if (jsonData is List && jsonData.isNotEmpty) {
+          final animal = jsonData.first;
+
+          // Create a Map with the species details
+          return {
+            'commonName': animal['name'] ?? 'Unknown',
+            'scientificName':
+                animal['taxonomy']['scientific_name'] ?? 'Unknown',
+            'class': animal['taxonomy']['class'] ?? 'Unknown',
+            'order': animal['taxonomy']['order'] ?? 'Unknown',
+            'main_prey': animal['characteristics']['main_prey'] ?? 'Unknown',
+            'habitat': animal['characteristics']['habitat'] ?? 'Unknown',
+            'predators': animal['characteristics']['predators'] ?? 'Unknown',
+            'diet': animal['characteristics']['diet'] ?? 'Unknown',
+            'favorite_food':
+                animal['characteristics']['favorite_food'] ?? 'Unknown',
+            'color': animal['characteristics']['color'] ?? 'Unknown',
+            'skin_type': animal['characteristics']['skin_type'] ?? 'Unknown',
+            'lifespan': animal['characteristics']['lifespan'] ?? 'Unknown',
+          };
+        }
+      } else {
+        print(
+            'Failed to fetch species details. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (error) {
+      print('Error fetching species details: $error');
+    }
+
+    // Return an empty map in case of an error
+    return {};
   }
 
   Future<void> fetchUserData() async {
@@ -114,8 +202,18 @@ class _ProfilePageState extends State<ProfilePage> {
       if (snapshot.exists) {
         final userData = snapshot.data();
         setState(() {
-          speciesFavorites =
-              List<String>.from(userData?['speciesFavorites'] ?? []);
+          List<Map<String, String>> speciesFavorites =
+              (userData?['speciesFavorites'] as List<dynamic>?)
+                      ?.map((item) => {
+                            'commonName': item['commonName']?.toString() ?? '',
+                            'name': item['name']?.toString() ?? '',
+                            'scientificName':
+                                item['scientificName']?.toString() ?? '',
+                          })
+                      .toList()
+                      .cast<Map<String, String>>() ??
+                  [];
+
           observationFavorites =
               List<String>.from(userData?['favouriteObservationList'] ?? []);
           newsFavorites =
@@ -240,6 +338,79 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  void toggleSpeciesFavoriteStatus(String speciesCommonName) async {
+    String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    if (currentUserId.isEmpty) {
+      return;
+    }
+
+    DocumentReference userRef =
+        FirebaseFirestore.instance.collection('users').doc(currentUserId);
+
+    try {
+      // Fetch the current user's species favorites from the database
+      DocumentSnapshot userSnapshot = await userRef.get();
+      List<dynamic>? speciesFavoritesList =
+          userSnapshot['favouriteSpeciesList'] as List<dynamic>?;
+
+      // Check if the favorite item already exists in the list
+      bool isFavorite = speciesFavoritesList?.any(
+            (item) => item['commonName'] == speciesCommonName,
+          ) ??
+          false;
+
+      if (isFavorite) {
+        // Remove the entire item from the list
+        speciesFavoritesList!
+            .removeWhere((item) => item['commonName'] == speciesCommonName);
+
+        // Update the user's document in the Firestore with the modified list
+        await userRef.update({
+          'favouriteSpeciesList': speciesFavoritesList,
+        });
+      } else {
+        // Add the favorite item to the list using FieldValue.arrayUnion
+        await userRef.update({
+          'favouriteSpeciesList': FieldValue.arrayUnion([
+            {
+              'commonName': speciesCommonName,
+              // Add other fields if needed
+            }
+          ]),
+        });
+      }
+
+      // Fetch the updated species favorites from the database
+      userSnapshot = await userRef.get();
+      speciesFavoritesList =
+          userSnapshot['favouriteSpeciesList'] as List<dynamic>?;
+
+      setState(() {
+        // Update the local state to reflect the changes
+        if (speciesFavoritesList != null) {
+          speciesFavorites = List<Map<String, String>>.from(
+            speciesFavoritesList.map((item) => {
+                  'commonName': item['commonName']?.toString() ?? '',
+                  'name': item['name']?.toString() ?? '',
+                  'scientificName': item['scientificName']?.toString() ?? '',
+                }),
+          );
+        }
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isFavorite ? "Removed from Favorites" : "Added to Favorites",
+          ),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (error) {
+      print('Error toggling species favorite status: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -354,9 +525,83 @@ class _ProfilePageState extends State<ProfilePage> {
                   Gap(20), // Add some spacing
                   Expanded(
                     child: SingleChildScrollView(
-                      child: Column(
-                        children: buildFavoriteCards(),
-                      ),
+                      child: selectedIndex != 0
+                          ? Column(
+                              children: buildFavoriteCards(),
+                            )
+                          : Column(
+                              children: [
+                                // Your existing logic for other items when selectedIndex is 0
+                                // For example, display ListTiles
+                                if (speciesFavorites.isNotEmpty)
+                                  ...speciesFavorites.map((speciesFavorite) {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          // Fetch species details before navigating to SpeciesInfoPage
+                                          Map<String, String> speciesDetails =
+                                              await fetchSpeciesDetails(
+                                                  speciesFavorite['name']!);
+
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  SpeciesInfoPage(
+                                                speciesData: speciesDetails,
+                                                toggleFavoriteStatus: () {
+                                                  toggleSpeciesFavoriteStatus(
+                                                      speciesFavorite[
+                                                          'commonName']!);
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Card(
+                                          child: ListTile(
+                                            title: Text(
+                                                speciesFavorite['commonName'] ??
+                                                    'Unknown'),
+                                            subtitle: Text(
+                                              speciesFavorite[
+                                                      'scientificName'] ??
+                                                  'Unknown',
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic),
+                                            ),
+                                            trailing: IconButton(
+                                              icon: Icon(
+                                                speciesFavorites.contains(
+                                                        speciesFavorite[
+                                                            'commonName'])
+                                                    ? Icons.star_border
+                                                    : Icons.star,
+                                                color: Styles.primaryColor,
+                                              ),
+                                              onPressed: () {
+                                                toggleSpeciesFavoriteStatus(
+                                                    speciesFavorite[
+                                                        'commonName']!);
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                if (speciesFavorites.isEmpty)
+                                  Text(
+                                    'No Record Found!',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                              ],
+                            ),
                     ),
                   ),
                 ],
