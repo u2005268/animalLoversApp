@@ -1,24 +1,26 @@
+import 'dart:async';
+
+import 'package:animal_lovers_app/utils/app_styles.dart';
+import 'package:animal_lovers_app/widgets/customAppbar.dart';
 import 'package:animal_lovers_app/widgets/shortButton.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class DonationCard extends StatelessWidget {
-  final String image;
+  final String imageUrl;
   final String title;
-  final String logoImage;
+  final String logoImageUrl;
   final String name;
   final String url;
 
-  const DonationCard(
-      {Key? key,
-      required this.image,
-      required this.title,
-      required this.logoImage,
-      required this.name,
-      required this.url})
-      : super(key: key);
+  const DonationCard({
+    Key? key,
+    required this.imageUrl,
+    required this.title,
+    required this.logoImageUrl,
+    required this.name,
+    required this.url,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +35,10 @@ class DonationCard extends StatelessWidget {
           child: Column(
             children: [
               Image.network(
+                imageUrl,
                 width: double.infinity,
                 height: 200,
                 fit: BoxFit.cover,
-                image,
                 loadingBuilder: (BuildContext context, Widget child,
                     ImageChunkEvent? loadingProgress) {
                   if (loadingProgress == null) {
@@ -52,7 +54,7 @@ class DonationCard extends StatelessWidget {
                   );
                 },
               ),
-              Gap(10),
+              const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Row(
@@ -81,7 +83,7 @@ class DonationCard extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(100),
                             child: Image.network(
-                              logoImage,
+                              logoImageUrl,
                               fit: BoxFit.cover,
                               loadingBuilder: (BuildContext context,
                                   Widget child,
@@ -104,7 +106,7 @@ class DonationCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Gap(2),
+                      const SizedBox(width: 2),
                       Text(
                         name,
                         style: TextStyle(
@@ -117,7 +119,7 @@ class DonationCard extends StatelessWidget {
                     child: ShortButton(
                         width: 90,
                         onTap: () {
-                          _launchURL(url);
+                          _openWebView(context, url);
                         },
                         buttonText: "Donate",
                         isTapped: true),
@@ -131,12 +133,72 @@ class DonationCard extends StatelessWidget {
     );
   }
 
-  Future<void> _launchURL(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      throw 'Could not launch $url';
-    }
+  void _openWebView(BuildContext context, String url) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => WebViewScreen(url: url),
+      ),
+    );
+  }
+}
+
+class WebViewScreen extends StatefulWidget {
+  final String url;
+
+  WebViewScreen({required this.url});
+
+  @override
+  _WebViewScreenState createState() => _WebViewScreenState();
+}
+
+class _WebViewScreenState extends State<WebViewScreen> {
+  final Completer<WebViewController> _controller =
+      Completer<WebViewController>();
+  bool _isLoading = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBar(
+        titleText: "Donation",
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Styles.secondaryColor,
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.chevron_left_sharp,
+              ),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          WebView(
+            initialUrl: widget.url,
+            javascriptMode: JavascriptMode.unrestricted,
+            onWebViewCreated: (WebViewController webViewController) {
+              _controller.complete(webViewController);
+            },
+            onPageFinished: (String url) {
+              setState(() {
+                _isLoading =
+                    false; // Set loading state to false when page is loaded
+              });
+            },
+          ),
+          if (_isLoading)
+            Center(
+              child:
+                  CircularProgressIndicator(), // Show the circular progress indicator while loading
+            ),
+        ],
+      ),
+    );
   }
 }

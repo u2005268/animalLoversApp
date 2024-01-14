@@ -1,4 +1,5 @@
 import 'package:animal_lovers_app/screens/donate.dart';
+import 'package:animal_lovers_app/screens/feeds_history.dart';
 import 'package:animal_lovers_app/screens/info.dart';
 import 'package:animal_lovers_app/screens/news.dart';
 import 'package:animal_lovers_app/screens/observation_history.dart';
@@ -71,7 +72,13 @@ class SideBar extends StatelessWidget {
             SidebarListtile(
               icon: Icons.rss_feed_outlined,
               text: "My Feeds",
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context); // Close the sidebar
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FeedsHistoryPage()),
+                );
+              },
             ),
             SidebarListtile(
               icon: Icons.notifications_none_outlined,

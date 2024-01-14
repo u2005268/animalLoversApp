@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:animal_lovers_app/utils/app_styles.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:animal_lovers_app/widgets/customAppbar.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:intl/intl.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class LongCard extends StatelessWidget {
   final String? text1;
@@ -12,7 +14,7 @@ class LongCard extends StatelessWidget {
   final String? imageUrl;
   final String? url;
   final VoidCallback? onEditPressed;
-  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
+
   const LongCard({
     Key? key,
     this.text1,
@@ -26,7 +28,7 @@ class LongCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final commonCardStyle = BoxDecoration(
-      color: Styles.lightGrey,
+      color: Styles.lightGrey, // Replace with your desired color
       borderRadius: BorderRadius.circular(15),
       boxShadow: [
         BoxShadow(
@@ -43,7 +45,7 @@ class LongCard extends StatelessWidget {
       return GestureDetector(
         onTap: () {
           if (url != null) {
-            _launchURL(url!);
+            _openWebView(context, url!); // Open web view on tap
           }
         },
         child: SizedBox(
@@ -55,7 +57,7 @@ class LongCard extends StatelessWidget {
             decoration: commonCardStyle,
             child: Text(
               text1!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
               ),
             ),
@@ -92,7 +94,7 @@ class LongCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        capitalize(text1!),
+                        text1!,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -142,12 +144,72 @@ class LongCard extends StatelessWidget {
     }
   }
 
-  Future<void> _launchURL(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      throw 'Could not launch $url';
-    }
+  void _openWebView(BuildContext context, String url) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => WebViewScreen(url: url),
+      ),
+    );
+  }
+}
+
+class WebViewScreen extends StatefulWidget {
+  final String url;
+
+  WebViewScreen({required this.url});
+
+  @override
+  _WebViewScreenState createState() => _WebViewScreenState();
+}
+
+class _WebViewScreenState extends State<WebViewScreen> {
+  final Completer<WebViewController> _controller =
+      Completer<WebViewController>();
+  bool _isLoading = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBar(
+        titleText: "Information",
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Styles.secondaryColor,
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.chevron_left_sharp,
+              ),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          WebView(
+            initialUrl: widget.url,
+            javascriptMode: JavascriptMode.unrestricted,
+            onWebViewCreated: (WebViewController webViewController) {
+              _controller.complete(webViewController);
+            },
+            onPageFinished: (String url) {
+              setState(() {
+                _isLoading =
+                    false; // Set loading state to false when page is loaded
+              });
+            },
+          ),
+          if (_isLoading)
+            Center(
+              child:
+                  CircularProgressIndicator(), // Show the circular progress indicator while loading
+            ),
+        ],
+      ),
+    );
   }
 }

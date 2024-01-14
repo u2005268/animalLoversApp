@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -151,6 +152,29 @@ class _GoogleMapBottomSheetState extends State<GoogleMapBottomSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: TextField(
+                  controller: _locationController,
+                  decoration: InputDecoration(
+                    labelText: 'Enter Address',
+                    labelStyle: TextStyle(
+                      color: Styles.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.search, color: Styles.primaryColor),
+                      onPressed: () {
+                        String address = _locationController.text;
+                        _updateLocationFromAddress(address);
+                      },
+                    ),
+                  ),
+                  onChanged: (String address) {
+                    _updateMarkerFromAddress(address);
+                  },
+                ),
+              ),
               Expanded(
                 child: _isLoading
                     ? Center(child: CircularProgressIndicator())
@@ -174,25 +198,6 @@ class _GoogleMapBottomSheetState extends State<GoogleMapBottomSheet> {
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(16.0),
-                child: TextField(
-                  controller: _locationController,
-                  decoration: InputDecoration(
-                    labelText: 'Enter Address',
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.search),
-                      onPressed: () {
-                        String address = _locationController.text;
-                        _updateLocationFromAddress(address);
-                      },
-                    ),
-                  ),
-                  onChanged: (String address) {
-                    _updateMarkerFromAddress(address);
-                  },
-                ),
               ),
             ],
           ),

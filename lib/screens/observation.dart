@@ -454,7 +454,7 @@ class _ObservationPageState extends State<ObservationPage> {
                                 child: LongButton(
                                   buttonColor: Styles.red,
                                   buttonText: "Delete",
-                                  onTap: _handleDelete,
+                                  onTap: _showDeleteConfirmationDialog,
                                 ),
                               ),
                               Expanded(
@@ -585,81 +585,77 @@ class _ObservationPageState extends State<ObservationPage> {
     }
   }
 
-  void _handleDelete() async {
-    try {
-      if (widget.observationId != null) {
-        // Show a confirmation dialog
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text("Delete"),
-              content:
-                  Text("Are you sure you want to delete this observation?"),
-              actions: [
-                MaterialButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close the dialog
-                  },
-                  child: Text(
-                    "No",
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                ),
-                MaterialButton(
-                  onPressed: () async {
-                    Navigator.pop(context); // Close the dialog
-
-                    // Get a reference to the Firestore collection
-                    CollectionReference observations =
-                        FirebaseFirestore.instance.collection('observations');
-
-                    // Retrieve the observation document
-                    final observationDoc =
-                        await observations.doc(widget.observationId).get();
-
-                    if (observationDoc.exists) {
-                      // Get the imageUrl from the observation document
-                      final imageUrl = (observationDoc.data()
-                          as Map<String, dynamic>)['imageUrl'];
-
-                      // Delete the observation document
-                      await observations.doc(widget.observationId).delete();
-
-                      // Delete the associated image from Firebase Storage if it exists
-                      if (imageUrl != null) {
-                        final storageRef =
-                            FirebaseStorage.instance.refFromURL(imageUrl);
-                        await storageRef.delete();
-                      }
-
-                      // Show a success message
-                      showStatusPopup(context, true);
-
-                      // Navigate to a different page after a delay
-                      Future.delayed(Duration(seconds: 3), () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ObservationHistoryPage()),
-                        );
-                      });
-                    }
-                  },
-                  child: Text(
-                    "Yes",
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                ),
-              ],
-            );
-          },
+  void _showDeleteConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Delete"),
+          content: Text("Are you sure you want to delete this observation?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                "No",
+                style: TextStyle(color: Colors.blue),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                // Perform the delete operation
+                _deleteObservation();
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                "Yes",
+                style: TextStyle(color: Colors.blue),
+              ),
+            ),
+          ],
         );
+      },
+    );
+  }
+
+  void _deleteObservation() async {
+    try {
+      // Get a reference to the Firestore collection
+      CollectionReference observations =
+          FirebaseFirestore.instance.collection('observations');
+
+      // Retrieve the observation document
+      final observationDoc = await observations.doc(widget.observationId).get();
+
+      if (observationDoc.exists) {
+        // Get the imageUrl from the observation document
+        final imageUrl =
+            (observationDoc.data() as Map<String, dynamic>)['imageUrl'];
+
+        // Delete the observation document
+        await observations.doc(widget.observationId).delete();
+
+        // Delete the associated image from Firebase Storage if it exists
+        if (imageUrl != null) {
+          final storageRef = FirebaseStorage.instance.refFromURL(imageUrl);
+          await storageRef.delete();
+        }
+
+        // Show a success message
+        showStatusPopup(context, true);
+
+        // Navigate to a different page after a delay
+        Future.delayed(Duration(seconds: 3), () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ObservationHistoryPage()),
+          );
+        });
       }
-    } catch (e) {
-      // Handle any errors that occur during deletion
+    } catch (error) {
+      print('Error deleting observation: $error');
       showStatusPopup(context, false);
-      print('Error deleting observation: $e');
     }
   }
 

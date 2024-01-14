@@ -78,9 +78,9 @@ class _DonatePageState extends State<DonatePage> {
                           String name = thisItem['name'];
                           String url = thisItem['url'];
                           return DonationCard(
-                            image: image,
+                            imageUrl: image,
                             title: title,
-                            logoImage: logoImage,
+                            logoImageUrl: logoImage,
                             name: name,
                             url: url,
                           );
