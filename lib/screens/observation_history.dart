@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/screens/animal_tracker.dart';
 import 'package:animal_lovers_app/screens/observation.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/bottomBar.dart';
@@ -57,7 +58,12 @@ class _ObservationHistoryPageState extends State<ObservationHistoryPage> {
               icon: Icon(
                 Icons.chevron_left_sharp,
               ),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AnimalTracker()),
+                );
+              },
             ),
           ),
         ),
