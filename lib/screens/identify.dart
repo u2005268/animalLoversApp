@@ -28,13 +28,11 @@ class _IdentifyPageState extends State<IdentifyPage> {
   @override
   void initState() {
     super.initState();
-    _loading = true;
+    _loading = false;
     _outputs = [];
 
     loadModel().then((val) {
-      setState(() {
-        _loading = false;
-      });
+      setState(() {});
     });
   }
 
@@ -233,10 +231,12 @@ class _IdentifyPageState extends State<IdentifyPage> {
                       ],
                     ),
                   )
-                : Text(
-                    "",
-                    textAlign: TextAlign.center,
-                  )
+                : _loading
+                    ? Text(
+                        "Loading...",
+                        textAlign: TextAlign.center,
+                      )
+                    : SizedBox(),
           ],
         ),
       ),
