@@ -5,6 +5,14 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
+       <service
+           android:name="com.google.firebase.messaging.FirebaseMessagingService"
+           android:exported="false">
+           <intent-filter>
+               <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+           </intent-filter>
+       </service>
+
        <!-- Insert your Google Maps API Key here -->
        <meta-data android:name="com.google.android.geo.API_KEY"
            android:value="AIzaSyCYahXl1H1pX_EU3XHDZwNr1p5Gef4PERI"/>
@@ -37,10 +45,26 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-    </application>
+
+
+
+
+   </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-feature android:name="android.hardware.location.gps" />
+
+
+    <!-- Add these permissions for Firebase Messaging -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <!-- Custom permission to ensure only your app can receive its messages -->
+    <permission
+        android:name="com.example.animal_lovers_app.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.example.animal_lovers_app.permission.C2D_MESSAGE" />
 
 </manifest>

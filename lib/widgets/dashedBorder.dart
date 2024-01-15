@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:flutter/material.dart';
 
 class DashedBorder extends StatelessWidget {
@@ -18,7 +19,7 @@ class DashedBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint()
-      ..color = Colors.grey // Border color
+      ..color = Styles.primaryColor // Border color
       ..strokeWidth = 2 // Border width
       ..style = PaintingStyle.stroke;
 

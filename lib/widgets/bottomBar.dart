@@ -1,5 +1,6 @@
 import 'package:animal_lovers_app/screens/animal_tracker.dart';
 import 'package:animal_lovers_app/screens/community_board.dart';
+import 'package:animal_lovers_app/screens/identify.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
 import 'package:animal_lovers_app/screens/species.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
@@ -33,7 +34,7 @@ class _BottomBarState extends State<BottomBar> {
       } else if (index == 1) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ProfilePage()),
+          MaterialPageRoute(builder: (context) => IdentifyPage()),
         );
       } else if (index == 2) {
         Navigator.push(

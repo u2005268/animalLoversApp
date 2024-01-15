@@ -1,0 +1,80 @@
+0 Bear
+1 Brown bear
+2 Bull
+3 Butterfly
+4 Camel
+5 Canary
+6 Caterpilla
+7 Cattle
+8 Centipede
+9 Cheetah
+10 Chicken
+11 Crab
+12 Crocodile
+13 Deer
+14 Duck
+15 Eagle
+16 Elephant
+17 Fish
+18 Fox
+19 Frog
+20 Giraffe
+21 Goat
+22 Goldfish
+23 Goose
+24 Hamster
+25 Harbor seal
+26 Hedgehog
+27 Hippopotamus
+28 Horse
+29 Jaguar
+30 Jellyfish
+31 Kangaroo
+32 Koala
+33 Ladybug
+34 Leopard
+35 Lion
+36 Lizard
+37 Lynx
+38 Magpie
+39 Monkey
+40 Moths and butterflies
+41 Mule
+42 Ostrich
+43 Otter
+44 Owl
+45 Panda
+46 Parrot
+47 Penguin
+48 Pig
+49 Polar bear
+50 Rabbit
+51 Raccoon
+52 Raven
+53 Red panda
+54 Rhinoceros
+55 Scorpion
+56 Sea lion
+57 Sea turtle
+58 Seahorse
+59 Shark
+60 Sheep
+61 Shrimp
+62 Snail
+63 Snake
+64 Sparrow
+65 Spider
+66 Squid
+67 Squirrel
+68 Starfish
+69 Swan
+70 Tick
+71 Tiger
+72 Tortoise
+73 Turkey
+74 Turtle
+75 Whale
+76 Woodpecker
+77 Worm
+78 Zebra
+79 Mouse
