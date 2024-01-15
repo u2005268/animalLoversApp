@@ -1,8 +1,11 @@
+import 'package:animal_lovers_app/screens/edit_info.dart';
+import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customAppbar.dart';
 import 'package:animal_lovers_app/widgets/bottomBar.dart';
 import 'package:animal_lovers_app/widgets/longCard.dart';
 import 'package:animal_lovers_app/widgets/sideBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -18,19 +21,36 @@ class _InfoPageState extends State<InfoPage> {
   CollectionReference _referenceInfoList =
       FirebaseFirestore.instance.collection('info');
   late Stream<QuerySnapshot> _streamInfoItems;
+  User? currentUser;
 
   @override
   initState() {
     super.initState();
     _streamInfoItems = _referenceInfoList.snapshots();
+
+    // Get the current user when the page initializes
+    currentUser = FirebaseAuth.instance.currentUser;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        titleText: "Info",
-      ),
+      appBar: CustomAppBar(titleText: "Info", actionWidgets: [
+        IconButton(
+          icon: Icon(
+            Icons.add_circle_outline_outlined,
+            color: Styles.primaryColor,
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const EditInfoPage(),
+              ),
+            );
+          },
+        ),
+      ]),
       drawer: SideBar(),
       bottomNavigationBar: BottomBar(),
       backgroundColor: Colors.white,
@@ -74,12 +94,19 @@ class _InfoPageState extends State<InfoPage> {
                               Map thisItem = items[index];
                               String url = thisItem['url'];
                               String title = thisItem['title'];
+
+                              // Check if the current user is the same as the userId
+                              bool isCurrentUser = currentUser?.uid ==
+                                  '2GJMjdTw6yZ6nlgKzmjq4DppDDM2';
+
                               return Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 10.0),
                                 child: LongCard(
                                   url: url,
                                   text1: title,
+                                  showEditIcon: isCurrentUser,
+                                  infoId: thisItem['id'],
                                 ),
                               );
                             },

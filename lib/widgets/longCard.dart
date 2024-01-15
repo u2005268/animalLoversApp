@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:animal_lovers_app/screens/edit_info.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customAppbar.dart';
 import 'package:flutter/material.dart';
@@ -8,20 +9,26 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class LongCard extends StatelessWidget {
+  final String? infoId;
   final String? text1;
   final String? text2;
   final String? text3;
   final String? imageUrl;
+  final String? title;
   final String? url;
+  final bool? showEditIcon;
   final VoidCallback? onEditPressed;
 
   const LongCard({
     Key? key,
+    this.infoId,
     this.text1,
     this.text2,
     this.text3,
     this.imageUrl,
+    this.title,
     this.url,
+    this.showEditIcon,
     this.onEditPressed,
   }) : super(key: key);
 
@@ -41,7 +48,6 @@ class LongCard extends StatelessWidget {
     );
 
     if (url != null && text1 != null) {
-      // Build the first configuration with URL and text1
       return GestureDetector(
         onTap: () {
           if (url != null) {
@@ -55,11 +61,25 @@ class LongCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
             margin: EdgeInsets.symmetric(horizontal: 25),
             decoration: commonCardStyle,
-            child: Text(
-              text1!,
-              style: TextStyle(
-                fontSize: 16,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text(
+                    text1!,
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                if (showEditIcon == true)
+                  IconButton(
+                    icon: Icon(Icons.edit, color: Styles.primaryColor),
+                    onPressed: () async {
+                      await onEditTapped(context);
+                    },
+                  ),
+              ],
             ),
           ),
         ),
@@ -148,6 +168,20 @@ class LongCard extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => WebViewScreen(url: url),
+      ),
+    );
+  }
+
+  Future<void> onEditTapped(BuildContext context) async {
+    // Navigate to EditDonatePage and pass data
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditInfoPage(
+          infoId: infoId,
+          title: title,
+          url: url,
+        ),
       ),
     );
   }
