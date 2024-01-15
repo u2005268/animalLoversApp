@@ -80,11 +80,11 @@ class SideBar extends StatelessWidget {
                 );
               },
             ),
-            SidebarListtile(
-              icon: Icons.notifications_none_outlined,
-              text: "Notification",
-              onTap: () => Navigator.pop(context),
-            ),
+            // SidebarListtile(
+            //   icon: Icons.notifications_none_outlined,
+            //   text: "Notification",
+            //   onTap: () => Navigator.pop(context),
+            // ),
             SidebarListtile(
               icon: Icons.newspaper_outlined,
               text: "News",

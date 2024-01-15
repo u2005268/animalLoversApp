@@ -28,6 +28,24 @@ class DonationCard extends StatelessWidget {
     required this.showEditIcon,
   }) : super(key: key);
 
+  Future<void> onEditPressed(BuildContext context) async {
+    // Navigate to EditDonatePage and pass data
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditDonatePage(
+          title: title,
+          imageUrl: imageUrl,
+          logoImageUrl: logoImageUrl,
+          name: name,
+          url: url,
+          donationId: donationId,
+          // Pass other necessary data
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -162,24 +180,6 @@ class DonationCard extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => WebViewScreen(url: url),
-      ),
-    );
-  }
-
-  Future<void> onEditPressed(BuildContext context) async {
-    // Navigate to EditDonatePage and pass data
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditDonatePage(
-          donationId: donationId,
-          imageUrl: imageUrl,
-          title: title,
-          logoImageUrl: logoImageUrl,
-          name: name,
-          url: url,
-          // Pass other necessary data
-        ),
       ),
     );
   }

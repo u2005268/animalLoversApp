@@ -22,6 +22,7 @@ class _DonatePageState extends State<DonatePage> {
       FirebaseFirestore.instance.collection('donation');
   late Stream<QuerySnapshot> _streamDonationItems;
   late User? currentUser;
+  late bool isCurrentUser;
 
   @override
   initState() {
@@ -30,26 +31,30 @@ class _DonatePageState extends State<DonatePage> {
 
     // Get the current user when the page initializes
     currentUser = FirebaseAuth.instance.currentUser;
+
+    // Check if the current user is the same as the userId
+    isCurrentUser = currentUser?.uid == '2GJMjdTw6yZ6nlgKzmjq4DppDDM2';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(titleText: "Donate", actionWidgets: [
-        IconButton(
-          icon: Icon(
-            Icons.add_circle_outline_outlined,
-            color: Styles.primaryColor,
+        if (isCurrentUser)
+          IconButton(
+            icon: Icon(
+              Icons.add_circle_outline_outlined,
+              color: Styles.primaryColor,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EditDonatePage(),
+                ),
+              );
+            },
           ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const EditDonatePage(),
-              ),
-            );
-          },
-        ),
       ]),
       drawer: SideBar(),
       bottomNavigationBar: BottomBar(),
@@ -98,9 +103,6 @@ class _DonatePageState extends State<DonatePage> {
                           String logoImage = thisItem['logoImage'];
                           String name = thisItem['name'];
                           String url = thisItem['url'];
-                          // Check if the current user is the same as the userId
-                          bool isCurrentUser = currentUser?.uid ==
-                              '2GJMjdTw6yZ6nlgKzmjq4DppDDM2';
 
                           return DonationCard(
                             imageUrl: image,

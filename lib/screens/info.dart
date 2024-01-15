@@ -23,6 +23,8 @@ class _InfoPageState extends State<InfoPage> {
   late Stream<QuerySnapshot> _streamInfoItems;
   User? currentUser;
 
+  late bool isCurrentUser;
+
   @override
   initState() {
     super.initState();
@@ -30,26 +32,30 @@ class _InfoPageState extends State<InfoPage> {
 
     // Get the current user when the page initializes
     currentUser = FirebaseAuth.instance.currentUser;
+
+    // Check if the current user is the same as the userId
+    isCurrentUser = currentUser?.uid == '2GJMjdTw6yZ6nlgKzmjq4DppDDM2';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(titleText: "Info", actionWidgets: [
-        IconButton(
-          icon: Icon(
-            Icons.add_circle_outline_outlined,
-            color: Styles.primaryColor,
+        if (isCurrentUser)
+          IconButton(
+            icon: Icon(
+              Icons.add_circle_outline_outlined,
+              color: Styles.primaryColor,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EditInfoPage(),
+                ),
+              );
+            },
           ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const EditInfoPage(),
-              ),
-            );
-          },
-        ),
       ]),
       drawer: SideBar(),
       bottomNavigationBar: BottomBar(),
@@ -94,10 +100,6 @@ class _InfoPageState extends State<InfoPage> {
                               Map thisItem = items[index];
                               String url = thisItem['url'];
                               String title = thisItem['title'];
-
-                              // Check if the current user is the same as the userId
-                              bool isCurrentUser = currentUser?.uid ==
-                                  '2GJMjdTw6yZ6nlgKzmjq4DppDDM2';
 
                               return Padding(
                                 padding:

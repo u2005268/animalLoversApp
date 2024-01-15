@@ -1,3 +1,5 @@
+import 'package:animal_lovers_app/screens/edit_news.dart';
+import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/bottomBar.dart';
 import 'package:animal_lovers_app/widgets/customAppbar.dart';
 import 'package:animal_lovers_app/widgets/newsCard.dart';
@@ -15,12 +17,21 @@ class NewsPage extends StatefulWidget {
 }
 
 class _NewsPageState extends State<NewsPage> {
+  CollectionReference _referenceNewsList =
+      FirebaseFirestore.instance.collection('news');
   List<NewsItem> newsItems = [];
+  late User? currentUser;
+  late bool isCurrentUser;
 
   @override
   void initState() {
     super.initState();
     fetchNewsData();
+    // Get the current user when the page initializes
+    currentUser = FirebaseAuth.instance.currentUser;
+
+    // Check if the current user is the same as the userId
+    isCurrentUser = currentUser?.uid == '2GJMjdTw6yZ6nlgKzmjq4DppDDM2';
   }
 
   Future<void> fetchNewsData() async {
@@ -103,7 +114,23 @@ class _NewsPageState extends State<NewsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(titleText: "News"),
+      appBar: CustomAppBar(titleText: "News", actionWidgets: [
+        if (isCurrentUser)
+          IconButton(
+            icon: Icon(
+              Icons.add_circle_outline_outlined,
+              color: Styles.primaryColor,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EditNewsPage(),
+                ),
+              );
+            },
+          ),
+      ]),
       drawer: SideBar(),
       bottomNavigationBar: BottomBar(),
       body: ListView.builder(
@@ -112,6 +139,7 @@ class _NewsPageState extends State<NewsPage> {
           return NewsCard(
             newsItem: newsItems[index],
             onStarToggle: () => toggleStarStatus(newsItems[index]),
+            showEditIcon: isCurrentUser,
           );
         },
       ),
@@ -124,7 +152,7 @@ class NewsItem {
   final String imageUrl;
   final String title;
   final String description;
-  final String timestamp;
+  final Timestamp timestamp;
   bool isStarred;
 
   NewsItem({
