@@ -73,44 +73,42 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         decoration: Styles.gradientBackground(),
         child: SafeArea(
           child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Gap(80),
-                  //logo
-                  Image.asset(
-                    'images/anp.png',
-                  ),
-                  Gap(20),
-                  Text(
-                    "Forgot Password?",
-                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                  ),
-                  Gap(10),
-                  Text(
-                    "Please enter your email to verify your identity.",
-                    style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-                  ),
-                  Gap(5),
-                  Text(
-                    "We will send you a password reset link.",
-                    style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-                  ),
-                  Gap(30),
-                  //email
-                  CustomizedTextField(
-                    icon: Icon(Icons.email),
-                    controller: _emailController,
-                    hintText: 'Email',
-                    obsureText: false,
-                  ),
-                  Gap(15),
-                  LongButton(
-                    buttonText: "Submit",
-                    onTap: passwordReset,
-                  ),
-                ],
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                //logo
+                Image.asset(
+                  'images/anp.png',
+                ),
+                Gap(20),
+                Text(
+                  "Forgot Password?",
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                ),
+                Gap(10),
+                Text(
+                  "Please enter your email to verify your identity.",
+                  style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                ),
+                Gap(5),
+                Text(
+                  "We will send you a password reset link.",
+                  style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                ),
+                Gap(30),
+                //email
+                CustomizedTextField(
+                  icon: Icon(Icons.email),
+                  controller: _emailController,
+                  hintText: 'Email',
+                  obsureText: false,
+                ),
+                Gap(15),
+                LongButton(
+                  buttonText: "Submit",
+                  onTap: passwordReset,
+                ),
+              ],
             ),
           ),
         ),

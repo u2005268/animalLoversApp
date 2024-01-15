@@ -1,25 +1,31 @@
 import 'dart:async';
 
+import 'package:animal_lovers_app/screens/edit_donate.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customAppbar.dart';
 import 'package:animal_lovers_app/widgets/shortButton.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class DonationCard extends StatelessWidget {
+  final String donationId;
   final String imageUrl;
   final String title;
   final String logoImageUrl;
   final String name;
   final String url;
+  final bool showEditIcon;
 
   const DonationCard({
     Key? key,
+    required this.donationId,
     required this.imageUrl,
     required this.title,
     required this.logoImageUrl,
     required this.name,
     required this.url,
+    required this.showEditIcon,
   }) : super(key: key);
 
   @override
@@ -34,27 +40,46 @@ class DonationCard extends StatelessWidget {
         child: Container(
           child: Column(
             children: [
-              Image.network(
-                imageUrl,
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-                loadingBuilder: (BuildContext context, Widget child,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child;
-                  }
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
+              Stack(children: [
+                Image.network(
+                  imageUrl,
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) {
+                      return child;
+                    }
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
+                ),
+                if (showEditIcon)
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Styles.secondaryColor, // Green background color
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.edit, color: Styles.primaryColor),
+                        onPressed: () async {
+                          await onEditPressed(context);
+                        },
+                      ),
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
+                  ),
+              ]),
+              Gap(10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Row(
@@ -137,6 +162,24 @@ class DonationCard extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => WebViewScreen(url: url),
+      ),
+    );
+  }
+
+  Future<void> onEditPressed(BuildContext context) async {
+    // Navigate to EditDonatePage and pass data
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditDonatePage(
+          donationId: donationId,
+          imageUrl: imageUrl,
+          title: title,
+          logoImageUrl: logoImageUrl,
+          name: name,
+          url: url,
+          // Pass other necessary data
+        ),
       ),
     );
   }

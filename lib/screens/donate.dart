@@ -1,8 +1,12 @@
+import 'package:animal_lovers_app/screens/edit_donate.dart';
+import 'package:animal_lovers_app/screens/observation.dart';
+import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customAppbar.dart';
 import 'package:animal_lovers_app/widgets/bottomBar.dart';
 import 'package:animal_lovers_app/widgets/donationCard.dart';
 import 'package:animal_lovers_app/widgets/sideBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -17,19 +21,36 @@ class _DonatePageState extends State<DonatePage> {
   CollectionReference _referenceDonationList =
       FirebaseFirestore.instance.collection('donation');
   late Stream<QuerySnapshot> _streamDonationItems;
+  late User? currentUser;
 
   @override
   initState() {
     super.initState();
     _streamDonationItems = _referenceDonationList.snapshots();
+
+    // Get the current user when the page initializes
+    currentUser = FirebaseAuth.instance.currentUser;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        titleText: "Donate",
-      ),
+      appBar: CustomAppBar(titleText: "Donate", actionWidgets: [
+        IconButton(
+          icon: Icon(
+            Icons.add_circle_outline_outlined,
+            color: Styles.primaryColor,
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const EditDonatePage(),
+              ),
+            );
+          },
+        ),
+      ]),
       drawer: SideBar(),
       bottomNavigationBar: BottomBar(),
       backgroundColor: Colors.white,
@@ -77,12 +98,18 @@ class _DonatePageState extends State<DonatePage> {
                           String logoImage = thisItem['logoImage'];
                           String name = thisItem['name'];
                           String url = thisItem['url'];
+                          // Check if the current user is the same as the userId
+                          bool isCurrentUser = currentUser?.uid ==
+                              '2GJMjdTw6yZ6nlgKzmjq4DppDDM2';
+
                           return DonationCard(
                             imageUrl: image,
                             title: title,
                             logoImageUrl: logoImage,
                             name: name,
                             url: url,
+                            showEditIcon: isCurrentUser,
+                            donationId: thisItem['id'],
                           );
                         },
                       ),
