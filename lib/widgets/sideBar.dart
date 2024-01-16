@@ -1,6 +1,7 @@
 import 'package:animal_lovers_app/screens/donate.dart';
 import 'package:animal_lovers_app/screens/feeds_history.dart';
 import 'package:animal_lovers_app/screens/info.dart';
+import 'package:animal_lovers_app/screens/login.dart';
 import 'package:animal_lovers_app/screens/news.dart';
 import 'package:animal_lovers_app/screens/observation_history.dart';
 import 'package:animal_lovers_app/screens/profile.dart';
@@ -147,10 +148,9 @@ class SideBar extends StatelessWidget {
                               child: Text("No",
                                   style: TextStyle(color: Colors.blue))),
                           MaterialButton(
-                              onPressed: () async {
-                                Navigator.pop(context);
-                                await GoogleSignIn().signOut();
-                                FirebaseAuth.instance.signOut();
+                              onPressed: () {
+                                // Navigator.pop(context);
+                                signOut(context);
                               },
                               child: Text("Yes",
                                   style: TextStyle(color: Colors.blue)))
@@ -162,6 +162,59 @@ class SideBar extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> signOut(BuildContext context) async {
+    try {
+      await GoogleSignIn().signOut();
+      await FirebaseAuth.instance.signOut();
+      Navigator.pop(context); // Close the sidebar
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+      showStatusPopup(context, true);
+    } catch (e) {
+      print("Error during sign-out: $e");
+      showStatusPopup(context, false);
+    }
+  }
+
+  void showStatusPopup(BuildContext context, bool isSuccess) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          content: Container(
+            width: 200.0,
+            height: 200.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  isSuccess
+                      ? Icons.check_circle_outline
+                      : Icons.cancel_outlined,
+                  size: 80.0,
+                  color: isSuccess ? Colors.green : Colors.red,
+                ),
+                SizedBox(height: 20.0),
+                Text(
+                  isSuccess ? 'Successful' : 'Unsuccessful',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:animal_lovers_app/screens/animal_tracker.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customizedTextfield.dart';
 import 'package:animal_lovers_app/screens/forgot_password.dart';
@@ -10,7 +11,7 @@ import 'package:animal_lovers_app/widgets/longButton.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
-  const LoginPage({Key? key, required this.onTap}) : super(key: key);
+  const LoginPage({Key? key, this.onTap}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -40,6 +41,11 @@ class _LoginPageState extends State<LoginPage> {
             password: _passwordController.text.trim());
         //pop the loading circle
         Navigator.pop(context);
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AnimalTracker()),
+        );
       }
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
