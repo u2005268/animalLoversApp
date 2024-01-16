@@ -9,9 +9,6 @@ Future main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  final fcmToken = await FirebaseMessaging.instance.getToken();
-
-  print('xxxsm $fcmToken');
 
   runApp(const MyApp());
 }
