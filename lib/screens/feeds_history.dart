@@ -151,7 +151,6 @@ class _FeedsHistoryPageState extends State<FeedsHistoryPage> {
       }
     } catch (error) {
       print('Error deleting feeds: $error');
-      showStatusPopup(context, false);
     }
   }
 

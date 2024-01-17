@@ -506,13 +506,29 @@ class _ObservationPageState extends State<ObservationPage> {
     double? longitude;
     final results = decodedData['results'];
 
+    print('Decoded data: $decodedData');
+
     if (results.isNotEmpty) {
       final location = results[0]['geometry']['location'];
       latitude = location['lat'];
       longitude = location['lng'];
+      print('Latitude: $latitude, Longitude: $longitude');
     } else {
       print('Location not found');
+      // You may want to handle this case, for example, by showing an error message.
+      return;
     }
+
+    //
+    // if (results.isNotEmpty) {
+    //   final location = results[0]['geometry']['location'];
+    //   latitude = location['lat'];
+    //   longitude = location['lng'];
+    // } else {
+    //   print('Location not found');
+    // }
+
+    print('Latitude: $latitude, Longitude: $longitude');
 
     // Create a reference to the Firestore collection
     CollectionReference observations =
