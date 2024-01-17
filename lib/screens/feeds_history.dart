@@ -127,31 +127,30 @@ class _FeedsHistoryPageState extends State<FeedsHistoryPage> {
 
   void _deletePost(String postId) async {
     try {
-      // Get the document data
-      DocumentSnapshot postSnapshot =
-          await FirebaseFirestore.instance.collection('feed').doc(postId).get();
+      // Get a reference to the Firestore collection
+      CollectionReference posts = FirebaseFirestore.instance.collection('feed');
 
-      if (!postSnapshot.exists) {
-        // Handle the case where the document does not exist
-        showStatusPopup(context, false);
-        return;
+      // Retrieve the feed document
+      final postDoc = await posts.doc(postId).get();
+
+      if (postDoc.exists) {
+        // Get the imageUrl from the feed document
+        final imageUrl = (postDoc.data() as Map<String, dynamic>)['imageUrl'];
+
+        // Delete the feed document
+        await posts.doc(postId).delete();
+
+        // Delete the associated image from Firebase Storage if it exists
+        if (imageUrl != null) {
+          final storageRef = FirebaseStorage.instance.refFromURL(imageUrl);
+          await storageRef.delete();
+        }
+
+        // Show a success message
+        showStatusPopup(context, true);
       }
-
-      // Get the URL of the post image
-      String? imageUrl = postSnapshot['imageUrl'];
-
-      // Delete the image from storage
-      if (imageUrl != null) {
-        await FirebaseStorage.instance.refFromURL(imageUrl).delete();
-      }
-
-      // Delete the post document from Firestore
-      await FirebaseFirestore.instance.collection('feed').doc(postId).delete();
-
-      // Show a success message
-      showStatusPopup(context, true);
     } catch (error) {
-      print('Error deleting post: $error');
+      print('Error deleting feeds: $error');
       showStatusPopup(context, false);
     }
   }
