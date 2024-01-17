@@ -66,7 +66,7 @@ class NewsCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
-        height: 360,
+        // height: 430,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
@@ -140,6 +140,7 @@ class NewsCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.bold,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Gap(8),

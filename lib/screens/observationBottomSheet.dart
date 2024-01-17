@@ -95,7 +95,10 @@ class _ObservationDetailsBottomSheetState
                         Text(
                           widget
                               .observation.observationDetails['whatDidYouSee'],
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(
+                            fontSize: 16,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         Row(
                           children: [

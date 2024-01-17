@@ -95,7 +95,6 @@ class LongCard extends StatelessWidget {
         },
         child: SizedBox(
           width: MediaQuery.of(context).size.width,
-          height: 75,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             margin: EdgeInsets.symmetric(horizontal: 5),
@@ -118,6 +117,7 @@ class LongCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Row(

@@ -103,6 +103,20 @@ class _ObservationHistoryPageState extends State<ObservationHistoryPage> {
                                   'time': e['time'] ?? "",
                                 })
                             .toList();
+
+                        if (items.isEmpty) {
+                          // No observations found
+                          return Center(
+                            child: Text(
+                              'No Record Found!',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        }
+
                         // Sort the items list based on date and time in descending order
                         items.sort((a, b) {
                           DateTime dateTimeA =

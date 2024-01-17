@@ -69,17 +69,21 @@ class ObservationInfoPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    whatDidYouSee, // Display the value
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold, // Add bold style
-                      shadows: [
-                        Shadow(
-                          blurRadius: 2.0,
-                          color: Colors.black,
-                        ),
-                      ],
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      whatDidYouSee, // Display the value
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold, // Add bold style
+                        shadows: [
+                          Shadow(
+                            blurRadius: 2.0,
+                            color: Colors.black,
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                   Gap(15),

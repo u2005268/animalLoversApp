@@ -19,7 +19,7 @@ class NewsInfoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        titleText: title,
+        titleText: "",
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
@@ -56,8 +56,26 @@ class NewsInfoPage extends StatelessWidget {
                 ),
               ),
             ),
+            Gap(15),
+            Align(
+              alignment: Alignment.center,
+              child: Text(
+                title, // Display the value
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold, // Add bold style
+                  shadows: [
+                    Shadow(
+                      blurRadius: 2.0,
+                      color: Colors.black,
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

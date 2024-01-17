@@ -269,6 +269,11 @@ class _CommunityPageState extends State<CommunityPage> {
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         data['description'],
+                                        style: TextStyle(
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 10,
                                       ),
                                     ),
                                   ),

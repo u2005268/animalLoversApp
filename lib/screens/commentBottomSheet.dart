@@ -124,7 +124,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        "No comments yet......",
+                        "No comment yet......",
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,

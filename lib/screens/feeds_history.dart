@@ -402,6 +402,21 @@ class _FeedsHistoryPageState extends State<FeedsHistoryPage> {
             }
           }).toList();
 
+          if (cardList.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "No Record Found!",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            );
+          }
+
           return ListView(
             children: cardList,
           );
