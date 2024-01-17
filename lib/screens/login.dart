@@ -1,4 +1,5 @@
 import 'package:animal_lovers_app/screens/animal_tracker.dart';
+import 'package:animal_lovers_app/screens/register.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customizedTextfield.dart';
 import 'package:animal_lovers_app/screens/forgot_password.dart';
@@ -212,7 +213,15 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       Gap(5),
                       GestureDetector(
-                        onTap: widget.onTap,
+                        onTap: () {
+                          // Navigate to a new screen when tapped
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RegisterPage(),
+                            ),
+                          );
+                        },
                         child: Text(
                           "Register",
                           style: TextStyle(

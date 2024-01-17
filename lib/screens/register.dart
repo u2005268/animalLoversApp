@@ -1,3 +1,5 @@
+import 'package:animal_lovers_app/screens/animal_tracker.dart';
+import 'package:animal_lovers_app/screens/login.dart';
 import 'package:animal_lovers_app/utils/app_styles.dart';
 import 'package:animal_lovers_app/widgets/customizedTextfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,7 +11,7 @@ import 'package:animal_lovers_app/widgets/longButton.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
-  const RegisterPage({Key? key, required this.onTap}) : super(key: key);
+  const RegisterPage({Key? key, this.onTap}) : super(key: key);
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -54,10 +56,18 @@ class _RegisterPageState extends State<RegisterPage> {
         // Add user data to Firestore
         createUsersDoc(userId, _usernameController.text.trim(),
             _emailController.text.trim(), "");
+
+        // Navigate to a new screen when tapped
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AnimalTracker(),
+          ),
+        );
       } else {
         Navigator.pop(context);
         //show error message
-        showErrorMessage("Passwords don't match");
+        showErrorMessage("Passwords don't match.");
       }
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
@@ -210,7 +220,13 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       Gap(5),
                       GestureDetector(
-                        onTap: widget.onTap,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()),
+                          );
+                        },
                         child: Text(
                           "Login",
                           style: TextStyle(
