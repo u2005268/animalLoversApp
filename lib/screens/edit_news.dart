@@ -437,7 +437,7 @@ class _EditNewsPageState extends State<EditNewsPage> {
                                     ),
                                     Gap(5),
                                     Text(
-                                      "Upload Photo",
+                                      "Upload Photo (Required)",
                                       style: TextStyle(
                                         color: Colors.grey,
                                         fontSize: 15,

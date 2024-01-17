@@ -17,7 +17,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   //text editing controllers
   final _emailController = TextEditingController();
   //error message popup
-  void showErrorMessage(String message) {
+  void showErrorMessage(String message, bool isSuccess) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -32,23 +32,24 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.cancel_outlined,
+                  isSuccess
+                      ? Icons.check_circle_outline
+                      : Icons.cancel_outlined,
                   size: 80.0,
-                  color: Colors.red,
+                  color: isSuccess ? Colors.green : Colors.red,
                 ),
-                SizedBox(height: 20.0),
+                Gap(20.0),
                 Text(
-                  'Error',
+                  isSuccess ? 'Done' : 'Error',
                   style: TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
-                    color: Colors.red,
+                    color: isSuccess ? Colors.green : Colors.red,
                   ),
                 ),
-                SizedBox(height: 10.0),
+                Gap(20.0),
                 Text(
-                  message,
-                  textAlign: TextAlign.center,
+                  isSuccess ? message : message,
                   style: TextStyle(
                     fontSize: 16.0,
                   ),
@@ -71,13 +72,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     try {
       await FirebaseAuth.instance
           .sendPasswordResetEmail(email: _emailController.text.trim());
-      showErrorMessage("Password reset link sent! Check your email.");
+      showErrorMessage("Password reset link sent! Check your email.", true);
     } on FirebaseAuthException catch (e) {
       print(e);
       if (_emailController.text.trim().length == 0) {
-        showErrorMessage("Please fill in your email.");
+        showErrorMessage("Please fill in your email.", false);
+      } else if (e.code == 'user-not-found') {
+        //show wrong email error
+        showErrorMessage("User not found.", false);
       } else {
-        showErrorMessage(e.message.toString());
+        showErrorMessage(e.message.toString(), false);
       }
     }
   }

@@ -55,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
         showErrorMessage("User not found.");
       } else if (e.code == 'wrong-password') {
         //show wrong password error
-        showErrorMessage("Wrong Password");
+        showErrorMessage("Wrong password.");
       } else {
         //show other error
         showErrorMessage(e.message.toString());
