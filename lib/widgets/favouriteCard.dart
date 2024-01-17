@@ -92,13 +92,17 @@ class _FavoriteCardState extends State<FavoriteCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        widget.title,
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          widget.title,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
@@ -118,7 +122,7 @@ class _FavoriteCardState extends State<FavoriteCard> {
                       ),
                     ),
                   ],
-                ),
+                )
               ],
             ),
           ),

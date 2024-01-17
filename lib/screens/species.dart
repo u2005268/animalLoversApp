@@ -110,7 +110,7 @@ class _SpeciesPageState extends State<SpeciesPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          isFavorite ? "Removed from Favorites" : "Added to Favorites",
+          isFavorite ? "Removed from Favourites" : "Added to Favourites",
         ),
         duration: Duration(seconds: 2),
       ),
