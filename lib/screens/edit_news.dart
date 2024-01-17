@@ -372,6 +372,7 @@ class _EditNewsPageState extends State<EditNewsPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   UnderlineTextfield(
+                    maxLines: null,
                     controller: _titleController,
                     hintText: "Title",
                     obscureText: false,
@@ -385,6 +386,7 @@ class _EditNewsPageState extends State<EditNewsPage> {
                   ),
 
                   UnderlineTextfield(
+                    maxLines: null,
                     controller: _descriptionController,
                     hintText: "Description",
                     obscureText: false,

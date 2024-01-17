@@ -7,20 +7,24 @@ class UnderlineTextfield extends StatelessWidget {
   final bool obscureText;
   final String? Function(String?)? validator; // Validator function
   final IconButton? suffixIcon;
-  const UnderlineTextfield({
-    Key? key,
-    required this.controller,
-    required this.hintText,
-    required this.obscureText,
-    this.validator, // Validator function parameter
-    this.suffixIcon, // Optional suffix icon button
-  }) : super(key: key);
+  final int? maxLines;
+
+  const UnderlineTextfield(
+      {Key? key,
+      required this.controller,
+      required this.hintText,
+      required this.obscureText,
+      this.validator, // Validator function parameter
+      this.suffixIcon, // Optional suffix icon button
+      this.maxLines})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8.0),
       child: TextFormField(
+        maxLines: maxLines,
         controller: controller,
         obscureText: obscureText,
         decoration: InputDecoration(

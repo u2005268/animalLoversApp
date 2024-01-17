@@ -286,6 +286,7 @@ class _ObservationPageState extends State<ObservationPage> {
                   children: [
                     // What did you see
                     UnderlineTextfield(
+                      maxLines: null,
                       controller: _whatDidYouSeeController,
                       hintText: "What did you see",
                       obscureText: false,
@@ -298,6 +299,7 @@ class _ObservationPageState extends State<ObservationPage> {
                       },
                     ),
                     UnderlineTextfield(
+                      maxLines: null,
                       controller: _locationController,
                       hintText: "Location",
                       obscureText: false,
@@ -346,6 +348,7 @@ class _ObservationPageState extends State<ObservationPage> {
                       },
                     ),
                     UnderlineTextfield(
+                      maxLines: null,
                       controller: _additionalInformationController,
                       hintText: "Additional Information (Optional)",
                       obscureText: false,
