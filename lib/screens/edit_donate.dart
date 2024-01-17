@@ -175,6 +175,18 @@ class _EditDonatePageState extends State<EditDonatePage> {
     try {
       // Upload a new donation with an image
       if (_imageFile != null && _logoImageFile != null) {
+        // Check if the image sizes are below 5MB
+        if (await _imageFile!.length() > 5 * 1024 * 1024 ||
+            await _logoImageFile!.length() > 5 * 1024 * 1024) {
+          // Show a warning message if any image size exceeds 5MB
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Image sizes should not exceed 5MB."),
+            ),
+          );
+          return;
+        }
+
         Reference storageReference = FirebaseStorage.instance
             .ref()
             .child('donate_images/${DateTime.now()}.png');
@@ -198,7 +210,7 @@ class _EditDonatePageState extends State<EditDonatePage> {
 
         showStatusPopup(context, true);
 
-        // Clear the text fields and image file after a successful submission
+        // Clear the text fields and image files after a successful submission
         _resetForm();
 
         // Show success popup with a delay
@@ -273,15 +285,19 @@ class _EditDonatePageState extends State<EditDonatePage> {
           final previousLogoImageUrl = donationDoc.data()?['logoImage'];
           final previousImageUrl = donationDoc.data()?['image'];
 
-          // Update an existing donation based on donationsId
-          await donations.doc(widget.donationId).update({
-            'title': title,
-            'name': name,
-            'url': link,
-          });
-
           // Check if a new image has been selected
           if (_imageFile != null) {
+            // Check if the image size is below 5MB
+            if (await _imageFile!.length() > 5 * 1024 * 1024) {
+              // Show a warning message if the image size exceeds 5MB
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Image size should not exceed 5MB."),
+                ),
+              );
+              return;
+            }
+
             // Upload the new image to Firebase Storage
             Reference storageReference = FirebaseStorage.instance
                 .ref()
@@ -304,7 +320,18 @@ class _EditDonatePageState extends State<EditDonatePage> {
 
           // Check if a new logo image has been selected
           if (_logoImageFile != null) {
-            // Upload the new image to Firebase Storage
+            // Check if the logo image size is below 5MB
+            if (await _logoImageFile!.length() > 5 * 1024 * 1024) {
+              // Show a warning message if the logo image size exceeds 5MB
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Logo image size should not exceed 5MB."),
+                ),
+              );
+              return;
+            }
+
+            // Upload the new logo image to Firebase Storage
             Reference storageReference = FirebaseStorage.instance
                 .ref()
                 .child('donate_logo_images/${DateTime.now()}.png');
@@ -323,15 +350,23 @@ class _EditDonatePageState extends State<EditDonatePage> {
               await storageRef.delete();
             }
           }
+
+          // Update an existing donation based on donationId
+          await donations.doc(widget.donationId).update({
+            'title': title,
+            'name': name,
+            'url': link,
+          });
+
+          showStatusPopup(context, true);
+          // Show success popup with a delay
+          Future.delayed(Duration(seconds: 1), () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => DonatePage()),
+            );
+          });
         }
-        showStatusPopup(context, true);
-        // Show success popup with a delay
-        Future.delayed(Duration(seconds: 1), () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => DonatePage()),
-          );
-        });
       }
     } catch (e) {
       print('Error updating donation: $e');
@@ -533,7 +568,7 @@ class _EditDonatePageState extends State<EditDonatePage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            "Attach photo. Size of the file should not exceed 1MB.",
+                            "Attach photo. Size of the file should not exceed 5MB.",
                             style: TextStyle(
                               color: Colors.grey,
                               fontSize: 10,
@@ -619,7 +654,7 @@ class _EditDonatePageState extends State<EditDonatePage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            "Attach photo. Size of the file should not exceed 1MB.",
+                            "Attach photo. Size of the file should not exceed 5MB.",
                             style: TextStyle(
                               color: Colors.grey,
                               fontSize: 10,

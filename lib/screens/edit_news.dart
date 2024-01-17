@@ -112,6 +112,17 @@ class _EditNewsPageState extends State<EditNewsPage> {
     try {
       // Upload a new news with an image
       if (_imageFile != null) {
+        // Check if the image size is below 5MB
+        if (await _imageFile!.length() > 5 * 1024 * 1024) {
+          // Show a warning message if the image size exceeds 5MB
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Image size should not exceed 5MB."),
+            ),
+          );
+          return;
+        }
+
         Reference storageReference = FirebaseStorage.instance
             .ref()
             .child('news_images/${DateTime.now()}.png');
@@ -172,16 +183,19 @@ class _EditNewsPageState extends State<EditNewsPage> {
         if (newsDoc.exists) {
           final previousImageUrl = newsDoc.data()?['imageUrl'];
 
-          // Update an existing news based on newsId
-          await news.doc(widget.newsId).update({
-            'title': title,
-            'description': description,
-            'imageUrl': imageUrl,
-            'timestamp': DateTime.now(),
-          });
-
           // Check if a new image has been selected
           if (_imageFile != null) {
+            // Check if the image size is below 5MB
+            if (await _imageFile!.length() > 5 * 1024 * 1024) {
+              // Show a warning message if the image size exceeds 5MB
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Image size should not exceed 5MB."),
+                ),
+              );
+              return;
+            }
+
             // Upload the new image to Firebase Storage
             Reference storageReference = FirebaseStorage.instance
                 .ref()
@@ -189,9 +203,12 @@ class _EditNewsPageState extends State<EditNewsPage> {
             await storageReference.putFile(_imageFile!);
             String imageUrl = await storageReference.getDownloadURL();
 
-            // Update the news document with the new image URL
+            // Update an existing news based on newsId
             await news.doc(widget.newsId).update({
+              'title': title,
+              'description': description,
               'imageUrl': imageUrl,
+              'timestamp': DateTime.now(),
             });
 
             // Delete the previous image from Firebase Storage
@@ -200,16 +217,24 @@ class _EditNewsPageState extends State<EditNewsPage> {
                   FirebaseStorage.instance.refFromURL(previousImageUrl);
               await storageRef.delete();
             }
+          } else {
+            // Update an existing news without changing the image
+            await news.doc(widget.newsId).update({
+              'title': title,
+              'description': description,
+              'timestamp': DateTime.now(),
+            });
           }
+
+          showStatusPopup(context, true);
+          // Show success popup with a delay
+          Future.delayed(Duration(seconds: 1), () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => NewsPage()),
+            );
+          });
         }
-        showStatusPopup(context, true);
-        // Show success popup with a delay
-        Future.delayed(Duration(seconds: 1), () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => NewsPage()),
-          );
-        });
       }
     } catch (e) {
       print('Error updating news: $e');
@@ -434,7 +459,7 @@ class _EditNewsPageState extends State<EditNewsPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          "Attach photo. Size of the file should not exceed 1MB.",
+                          "Attach photo. Size of the file should not exceed 5MB.",
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 10,

@@ -414,7 +414,7 @@ class _ObservationPageState extends State<ObservationPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            "Attach photo. Size of the file should not exceed 1MB.",
+                            "Attach photo. Size of the file should not exceed 5MB.",
                             style: TextStyle(
                               color: Colors.grey,
                               fontSize: 10,
@@ -536,20 +536,19 @@ class _ObservationPageState extends State<ObservationPage> {
         if (observationDoc.exists) {
           final previousImageUrl = observationDoc.data()?['imageUrl'];
 
-          // Update an existing observation based on observationId
-          await observations.doc(widget.observationId).update({
-            'userId': userId,
-            'whatDidYouSee': whatDidYouSee,
-            'location': location,
-            'date': date,
-            'time': time,
-            'additionalInformation': additionalInformation,
-            'latitude': latitude,
-            'longitude': longitude,
-          });
-
           // Check if a new image has been selected
           if (_imageFile != null) {
+            // Check if the image size is below 5MB
+            if (await _imageFile!.length() > 5 * 1024 * 1024) {
+              // Show a warning message if the image size exceeds 5MB
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Image size should not exceed 5MB."),
+                ),
+              );
+              return;
+            }
+
             // Upload the new image to Firebase Storage
             Reference storageReference = FirebaseStorage.instance
                 .ref()
@@ -557,8 +556,16 @@ class _ObservationPageState extends State<ObservationPage> {
             await storageReference.putFile(_imageFile!);
             String imageUrl = await storageReference.getDownloadURL();
 
-            // Update the observation document with the new image URL
+            // Update an existing observation based on observationId
             await observations.doc(widget.observationId).update({
+              'userId': userId,
+              'whatDidYouSee': whatDidYouSee,
+              'location': location,
+              'date': date,
+              'time': time,
+              'additionalInformation': additionalInformation,
+              'latitude': latitude,
+              'longitude': longitude,
               'imageUrl': imageUrl,
             });
 
@@ -568,6 +575,18 @@ class _ObservationPageState extends State<ObservationPage> {
                   FirebaseStorage.instance.refFromURL(previousImageUrl);
               await storageRef.delete();
             }
+          } else {
+            // Update an existing observation without changing the image
+            await observations.doc(widget.observationId).update({
+              'userId': userId,
+              'whatDidYouSee': whatDidYouSee,
+              'location': location,
+              'date': date,
+              'time': time,
+              'additionalInformation': additionalInformation,
+              'latitude': latitude,
+              'longitude': longitude,
+            });
           }
         }
         showStatusPopup(context, true);
@@ -691,6 +710,17 @@ class _ObservationPageState extends State<ObservationPage> {
     }
 
     try {
+      // Check if the image size is below 5MB
+      if (_imageFile != null && await _imageFile!.length() > 5 * 1024 * 1024) {
+        // Show a warning message if the image size exceeds 5MB
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Image size should not exceed 5MB."),
+          ),
+        );
+        return;
+      }
+
       // Upload a new observation with an image
       if (_imageFile != null) {
         Reference storageReference = FirebaseStorage.instance
